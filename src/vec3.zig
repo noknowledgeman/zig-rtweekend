@@ -1,5 +1,7 @@
 const std = @import("std");
 const math = std.math;
+const util = @import("util.zig");
+const Interval = @import("Interval.zig");
 
 // all operations create a new vector.
 pub const Vec3 = struct {
@@ -10,6 +12,15 @@ pub const Vec3 = struct {
         return .{ .data = @Vector(3, f64){ lx, ly, lz }};
     }
 
+    pub fn random() Vec3 {
+        return Vec3.init(util.randomDouble(), util.randomDouble(), util.randomDouble());
+    }
+
+    pub fn randomInterval(interval: Interval) Vec3 {
+        return Vec3.init(util.randomDoubleInterval(interval), util.randomDoubleInterval(interval), util.randomDoubleInterval(interval));
+
+    }
+
     pub fn dup(self: Vec3) Vec3 {
         return Vec3.init(self.data[0], self.data[1], self.data[2]);
     }
@@ -17,6 +28,11 @@ pub const Vec3 = struct {
     /// Adds this vector to another one
     pub fn add(self: Vec3, other: Vec3) Vec3 {
         return Vec3{ .data = self.data + other.data };
+    }
+
+    /// Multiplies the vector by element.
+    pub fn mul(self: Vec3, other: Vec3) Vec3 {
+        return Vec3{ .data = self.data * other.data };
     }
 
     pub fn sub(self: Vec3, other: Vec3) Vec3 {
@@ -29,7 +45,7 @@ pub const Vec3 = struct {
     }
 
     pub fn length(self: Vec3) f64 {
-        return math.sqrt(self.lengthSquared());
+        return @sqrt(self.lengthSquared());
     }
 
     pub fn lengthSquared(self: Vec3) f64 {
@@ -37,8 +53,27 @@ pub const Vec3 = struct {
         return lx*lx + ly*ly + lz*lz;
     }
 
-    pub fn unit_vector(self: Vec3) Vec3 {
+    pub fn unitVector(self: Vec3) Vec3 {
         return Vec3{ .data = self.data / @as(@Vector(3, f64), @splat(self.length())) };
+    }
+
+    pub fn randomUnitVector() Vec3 {
+        while (true) {
+            const p = randomInterval(Interval{.min = -1, .max = 1});
+            const lensq = p.lengthSquared();
+            if (1e-160 < lensq and  lensq <= 1) {
+                return p.scale(1/@sqrt(lensq));
+            }
+        }
+    }
+
+    pub fn randomVectorOnHemisphere(normal: Vec3) Vec3 {
+        const on_unit_sphere = randomUnitVector();
+        if (on_unit_sphere.dot(normal) > 0.0) {
+            return on_unit_sphere;
+        } else {
+            return on_unit_sphere.scale(-1);
+        }
     }
 
     pub fn dot(self: Vec3, other: Vec3) f64 {
@@ -47,9 +82,19 @@ pub const Vec3 = struct {
         return lx*olx + ly*oly + lz*olz;
     }
 
+    pub fn nearZero(self: Vec3) bool {
+        const s = 1e-8;
+        return (@abs(self.data[0]) < s) and (@abs(self.data[1]) < s) and (@abs(self.data[2]) < s);
+    }
+
+    pub fn reflect(self: Vec3, n: Vec3) Vec3 {
+        return self.sub(n.scale(2*n.dot(self)));
+    }
+
     pub fn x(self: Vec3) f64 {return self.data[0];}
     pub fn y(self: Vec3) f64 {return self.data[1];}
     pub fn z(self: Vec3) f64 {return self.data[0];}
+
 };
 
 pub const Point = Vec3;

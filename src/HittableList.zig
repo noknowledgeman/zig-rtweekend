@@ -32,11 +32,7 @@ fn hit(ptr: *anyopaque, ray: Ray, ray_t: Interval, hit_record: *HitRecord) bool 
             hit_anything = true;
             closest_so_far = temp_rec.t;
 
-            // FIXME: ugly  struct  copying has to be something better no?
-            hit_record.front_face = temp_rec.front_face;
-            hit_record.t = temp_rec.t;
-            hit_record.normal = temp_rec.normal;
-            hit_record.p = temp_rec.p;
+            hit_record.* = temp_rec;
         }
     }
 

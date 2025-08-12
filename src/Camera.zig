@@ -13,6 +13,7 @@ const util = @import("util.zig");
 aspect_ratio: f64,
 image_width: u32,
 samples_per_pixel: u32,
+max_depth: u32,
 
 _image_height: u32,
 _pixel_samples_scale: f64,
@@ -76,7 +77,7 @@ pub fn render(self: Camera, world: Hittable) !void {
             for (0..self.samples_per_pixel) |_| {
                 const r = self.getRay(i, j);
 
-                pixel_color = pixel_color.add(self.rayColor(r, world));
+                pixel_color = pixel_color.add(self.rayColor(r, self.max_depth, world));
             }
             
 
@@ -111,15 +112,22 @@ fn sampleSquare() Vec3 {
     return Vec3.init(util.randomDouble() - 0.5, util.randomDouble() - 0.5, 0.0);
 }
 
-fn rayColor(self: Camera, r: Ray, world: Hittable) Color {
-    // TODO: Do the self referencing
-    _ = self;
-    var rec: HitRecord = undefined;
-    if (world.hit(r, Interval{ .min=0, .max=std.math.inf(f64) }, &rec)) {
-        return (rec.normal.add(Color.init(1.0, 1.0, 1.0)).scale(0.5));
+fn rayColor(self: Camera, r: Ray, depth: u32, world: Hittable) Color {
+    if (depth <= 0) {
+        return Color.init(0, 0, 0);
     }
 
-    const unit_direction = r.dir.unit_vector();
+    var rec: HitRecord = undefined;
+    if (world.hit(r, Interval{ .min=0.001, .max=std.math.inf(f64) }, &rec)) {
+        var scattered: Ray = undefined;
+        var attenuation: Color = undefined;
+        if (rec.mat.scatter(r, rec, &attenuation, &scattered)) {
+            return attenuation.mul(self.rayColor(scattered, depth-1, world));
+        }
+        return Color.init(0, 0, 0);
+    }
+
+    const unit_direction = r.dir.unitVector();
     const a = 0.5*(unit_direction.data[1] + 1.0);
     return Color.init(1.0, 1.0, 1.0).scale(1.0 - a).add(Color.init(0.5, 0.7, 1.0).scale(a));
 }

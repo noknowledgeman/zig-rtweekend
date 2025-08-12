@@ -11,10 +11,10 @@ dir: Vec3,
 pub fn init(orig: Point, dir: Vec3) Ray {
     return .{
         .orig = orig,
-        .dir = dir,
+        .dir = dir.unitVector(),
     };
 }
 
-pub fn at(self: Ray, t: f64 ) Point {
+pub fn at(self: Ray, t: f64) Point {
     return self.orig.add(self.dir.scale(t));
 }

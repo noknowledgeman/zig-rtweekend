@@ -6,9 +6,21 @@ pub const Color = Vec3;
 
 const intensity = Interval{.min = 0.000, .max = 0.999};
 
+inline fn linearToGamma(linear_component: f64) f64 {
+    if (linear_component > 0.0) {
+        return @sqrt(linear_component);
+    }
+
+    return 0.0;
+}
+
 /// first argument is a writer
 pub fn writeColor(writer: anytype, color: Color) !void {
-    const r, const g, const b = color.data;
+    var r, var g, var b = color.data;
+
+    r = linearToGamma(r);
+    g = linearToGamma(g);
+    b = linearToGamma(b);
 
     const rbyte: u16 = @intFromFloat(256 * intensity.clamp(r));
     const gbyte: u16 = @intFromFloat(256 * intensity.clamp(g));

@@ -4,14 +4,17 @@ const Hittable = @import("hittable.zig").Hittable;
 const Ray = @import("Ray.zig");
 const HitRecord = @import("hittable.zig").HitRecord;
 const Interval = @import("Interval.zig");
+const Material = @import("material.zig").Material;
 
 radius: f64,
 center: Point,
+mat: Material,
 
-pub fn init(center: Point, radius: f64) Sphere {
+pub fn init(center: Point, radius: f64, mat: Material) Sphere {
     return .{
         .center = center,
         .radius = @max(0, radius),
+        .mat = mat,
     };
 }
 
@@ -23,8 +26,8 @@ fn hit(ptr: *anyopaque, ray: Ray, ray_t: Interval, rec: *HitRecord) bool {
     const a: f64 =  ray.dir.lengthSquared();
     const h: f64 = ray.dir.dot(oc);
     const c: f64 = oc.lengthSquared() - self.radius*self.radius;
-    const discriminant: f64 = h*h - a*c;
 
+    const discriminant: f64 = h*h - a*c;
     if (discriminant < 0) {
         return false;
     }
@@ -41,8 +44,10 @@ fn hit(ptr: *anyopaque, ray: Ray, ray_t: Interval, rec: *HitRecord) bool {
 
     rec.t = root;
     rec.p = ray.at(rec.t);
-    const outward_normal = rec.p.sub(self.center).scale(1 / self.radius);
+    // FIXME: Used unitVEctor to test but it is less efficient
+    const outward_normal = rec.p.sub(self.center).unitVector();
     rec.setFaceNormal(ray, outward_normal);
+    rec.mat = self.mat;
 
     return true;
 }
