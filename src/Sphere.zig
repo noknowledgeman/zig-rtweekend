@@ -5,6 +5,7 @@ const Ray = @import("Ray.zig");
 const HitRecord = @import("hittable.zig").HitRecord;
 const Interval = @import("Interval.zig");
 const Material = @import("material.zig").Material;
+const Vec3 = @import("vec3.zig").Vec3;
 
 radius: f64,
 center: Point,
@@ -45,7 +46,7 @@ fn hit(ptr: *anyopaque, ray: Ray, ray_t: Interval, rec: *HitRecord) bool {
     rec.t = root;
     rec.p = ray.at(rec.t);
     // FIXME: Used unitVEctor to test but it is less efficient
-    const outward_normal = rec.p.sub(self.center).unitVector();
+    const outward_normal = self.normalAtPoint(rec.p);
     rec.setFaceNormal(ray, outward_normal);
     rec.mat = self.mat;
 
@@ -57,6 +58,11 @@ pub fn hittable(self: *Sphere) Hittable {
         .ptr = self,
         .hitFn = hit,
     };
+}
+
+/// Finds the normal at a point, does not check if the point is on the sphere that is assumed
+pub fn normalAtPoint(self: Sphere, pnt: Point) Vec3 {
+    return pnt.sub(self.center).unitVector();
 }
 
 
