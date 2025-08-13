@@ -76,6 +76,16 @@ pub const Vec3 = struct {
         }
     }
 
+    pub fn randomVectorInUnitDisc() Vec3 {
+        const int = Interval{ .min = -1, .max = 1};
+        while (true) {
+            const p = Vec3.init(util.randomDoubleInterval(int), util.randomDoubleInterval(int), 0.0);
+            if (p.lengthSquared() < 1) {
+                return p;
+            }
+        }
+    }
+
     pub fn dot(self: Vec3, other: Vec3) f64 {
         const lx, const ly, const lz = self.data;
         const olx, const oly, const olz = other.data;
@@ -89,6 +99,24 @@ pub const Vec3 = struct {
 
     pub fn reflect(self: Vec3, n: Vec3) Vec3 {
         return self.sub(n.scale(2*n.dot(self)));
+    }
+
+    pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) Vec3 {
+        const cos_theta = @min(uv.scale(-1).dot(n), 1.0);
+        const r_out_perp = uv.add(n.scale(cos_theta)).scale(etai_over_etat);
+        const r_out_parallel = n.scale(-1*@sqrt(@abs(1.0 - r_out_perp.lengthSquared())));
+
+        return r_out_perp.add(r_out_parallel);
+    }
+
+    pub fn cross(self: Vec3, other: Vec3) Vec3 {
+        return .{
+            .data = @Vector(3, f64){
+                self.data[1]*other.data[2] - self.data[2]*other.data[1],
+                self.data[2]*other.data[0] - self.data[0]*other.data[2],
+                self.data[0]*other.data[1] - self.data[1]*other.data[0],
+            },
+        };
     }
 
     pub fn x(self: Vec3) f64 {return self.data[0];}
