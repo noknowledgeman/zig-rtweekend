@@ -47,14 +47,17 @@ pub const Lambertian = struct {
 
 pub const Metallic = struct {
     albedo: Color,
+    fuzz: f64,
 
     fn scatter(ptr: *anyopaque, r_in: Ray, rec: HitRecord, attenuation: *Color, scattered: *Ray) bool {
         const self: *Metallic = @ptrCast(@alignCast(ptr));
-        const reflected = r_in.dir.reflect(rec.normal);
+
+        var reflected = r_in.dir.reflect(rec.normal);
+        reflected = reflected.unitVector().add(Vec3.randomUnitVector().scale(self.fuzz));
         scattered.* = Ray.init(rec.p, reflected);
         attenuation.* = self.albedo;
 
-        return true;
+        return scattered.dir.dot(rec.normal) > 0;
     }
 
     pub fn material(self: *Metallic) Material {

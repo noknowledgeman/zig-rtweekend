@@ -25,8 +25,8 @@ pub fn main() !void {
 
     var material_ground = material.Lambertian{ .albedo = Color.init(0.8, 0.8, 0.0) };
     var material_center = material.Lambertian{ .albedo = Color.init(0.1, 0.2, 0.5) };
-    var material_left = material.Metallic{ .albedo = Color.init(0.8, 0.8, 0.8) };
-    var material_right = material.Metallic{ .albedo = Color.init(0.8, 0.6, 0.2) };
+    var material_left = material.Metallic{ .albedo = Color.init(0.8, 0.8, 0.8), .fuzz = 0.3 };
+    var material_right = material.Metallic{ .albedo = Color.init(0.8, 0.6, 0.2), .fuzz = 1.0 };
 
     var sphere_ground = Sphere.init(Point.init(0, -100.5, -1.0), 100.0, material_ground.material());
     var sphere_center = Sphere.init(Point.init(0, 0, -1.2), 0.5, material_center.material());
