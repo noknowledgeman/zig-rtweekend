@@ -45,7 +45,6 @@ fn hit(ptr: *anyopaque, ray: Ray, ray_t: Interval, rec: *HitRecord) bool {
 
     rec.t = root;
     rec.p = ray.at(rec.t);
-    // FIXME: Used unitVEctor to test but it is less efficient
     const outward_normal = self.normalAtPoint(rec.p);
     rec.setFaceNormal(ray, outward_normal);
     rec.mat = self.mat;
@@ -61,8 +60,8 @@ pub fn hittable(self: *Sphere) Hittable {
 }
 
 /// Finds the normal at a point, does not check if the point is on the sphere that is assumed
-pub fn normalAtPoint(self: Sphere, pnt: Point) Vec3 {
-    return pnt.sub(self.center).unitVector();
+pub inline fn normalAtPoint(self: Sphere, pnt: Point) Vec3 {
+    return pnt.sub(self.center).scale(1.0/self.radius);
 }
 
 

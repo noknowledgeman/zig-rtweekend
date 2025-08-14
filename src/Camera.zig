@@ -9,6 +9,7 @@ const Interval = @import("Interval.zig");
 const Vec3 = @import("vec3.zig").Vec3;
 const Point = @import("vec3.zig").Point;
 const util = @import("util.zig");
+const Buffer = @import("Buffer.zig");
 
 aspect_ratio: f64 = 1.0,
 image_width: u32 = 100,
@@ -75,18 +76,10 @@ pub fn init(self: *Camera) void {
     self._defocus_disc_v = self._v.scale(defocus_radius);
 }
 
-pub fn render(self: Camera, world: Hittable) !void {
+// TODO: switch to GenericWriter or AnyWriter
+pub fn render(self: Camera, buffer: *Buffer, world: Hittable) !void {
     // initialize writers 
     const stderr = std.io.getStdErr().writer();
-    const stdout = std.io.getStdOut().writer();
-    _ = stdout;
-
-    // TODO: make the file an input, Could be by implementing a surface and then a some rendering target.
-    const output_file = try std.fs.cwd().createFile("output.ppm", .{});
-    defer output_file.close();
-
-    // TODO: Make the file buffer and binary ppm file
-    try std.fmt.format(output_file.writer(), "P3\n{}\n{}\n255\n", .{self.image_width, self._image_height});
 
     for (0..@as(usize, self._image_height)) |j_usize| {
         try stderr.print("\rScanlines remaining: {} ", .{self._image_height - j_usize});
@@ -100,15 +93,9 @@ pub fn render(self: Camera, world: Hittable) !void {
 
                 pixel_color = pixel_color.add(self.rayColor(r, self.max_depth, world));
             }
-            
 
-            // const pixel_center = self._pixel00_loc.add(self._pixel_delta_u.scale(fi)).add(self._pixel_delta_v.scale(fj));
-            // const ray_direction = pixel_center.sub(self._center);
-            // const ray = Ray.init(self._center, ray_direction);
-            //
-            // const col = self.rayColor(ray, world);
-
-            try color.writeColor(output_file.writer(), pixel_color.scale(self._pixel_samples_scale));
+            try buffer.appendColor(pixel_color.scale(self._pixel_samples_scale));
+            // try color.writeColor(writer, pixel_color.scale(self._pixel_samples_scale));
         }
     }
 
