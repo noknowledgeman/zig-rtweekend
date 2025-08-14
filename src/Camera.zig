@@ -11,19 +11,42 @@ const Point = @import("vec3.zig").Point;
 const util = @import("util.zig");
 const Buffer = @import("Buffer.zig");
 
+pub const ImageOptions = struct {
+    aspect_ratio: f64 = 1.0,
+    image_width: u32 = 100,
+    samples_per_pixel: u32 = 10,
+    max_depth: u32 = 10,
+};
+
+pub const CameraOptions = struct {
+    vfov: f64 = 90.0,
+    lookfrom: Point = Point.init(0.0, 0.0, 0.0),
+    lookat: Point = Point.init(0.0,  0.0, -1.0),
+    vup: Vec3 = Vec3.init(0.0, 1.0, 0.0),
+};
+
+pub const FocusOptions = struct {
+    defocus_angle: f64 = 0.0,
+    focus_dist: f64 = 10.0,
+};
+
+// The image options
 aspect_ratio: f64 = 1.0,
 image_width: u32 = 100,
 samples_per_pixel: u32 = 10,
 max_depth: u32 = 10,
 
+// The Camera Options
 vfov: f64 = 90.0,
 lookfrom: Point = Point.init(0.0, 0.0, 0.0),
 lookat: Point = Point.init(0.0, 0.0, -1.0),
 vup: Vec3 = Vec3.init(0.0, 1.0, 0.0),
 
+// The  focus options
 defocus_angle: f64 = 0.0,
 focus_dist: f64 = 10.0,
 
+// private fields
 _image_height: u32,
 _pixel_samples_scale: f64,
 _center: Point,
@@ -36,9 +59,26 @@ _w: Vec3,
 _defocus_disc_u: Vec3,
 _defocus_disc_v: Vec3,
 
-// FIXME: Followign the tutorial in idiomatic c++, convert to idiomatic zig
-// NOTE: The public fields have  to be defined.
-pub fn init(self: *Camera) void {
+fn setOptions(self: *Camera, image_options: ImageOptions, camera_options: CameraOptions, focus_options: FocusOptions) void {
+    self.aspect_ratio = image_options.aspect_ratio;
+    self.image_width = image_options.image_width;
+    self.samples_per_pixel = image_options.samples_per_pixel;
+    self.max_depth = image_options.max_depth;
+
+    self.vfov = camera_options.vfov;
+    self.lookfrom = camera_options.lookfrom;
+    self.lookat = camera_options.lookat;
+    self.vup = camera_options.vup;
+
+    self.defocus_angle = focus_options.defocus_angle;
+    self.focus_dist =  focus_options.focus_dist;
+}
+
+pub fn init(image_options: ImageOptions, camera_options: CameraOptions, focus_options: FocusOptions) Camera {
+    var self: Camera = undefined;
+    self.setOptions(image_options, camera_options, focus_options);
+
+
     self._pixel_samples_scale = 1.0 / @as(f64, @floatFromInt(self.samples_per_pixel));
 
     self._image_height = @intFromFloat(@as(f64, @floatFromInt(self.image_width)) / self.aspect_ratio);
@@ -74,9 +114,10 @@ pub fn init(self: *Camera) void {
     const defocus_radius = self.focus_dist * @tan(util.degreesToRadians(self.defocus_angle/2.0));
     self._defocus_disc_u = self._u.scale(defocus_radius);
     self._defocus_disc_v = self._v.scale(defocus_radius);
+
+    return self;
 }
 
-// TODO: switch to GenericWriter or AnyWriter
 pub fn render(self: Camera, buffer: *Buffer, world: Hittable) !void {
     // initialize writers 
     const stderr = std.io.getStdErr().writer();
@@ -95,7 +136,6 @@ pub fn render(self: Camera, buffer: *Buffer, world: Hittable) !void {
             }
 
             try buffer.appendColor(pixel_color.scale(self._pixel_samples_scale));
-            // try color.writeColor(writer, pixel_color.scale(self._pixel_samples_scale));
         }
     }
 

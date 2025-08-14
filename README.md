@@ -3,5 +3,8 @@
 ## Vec3
 
 The vec3 will be implemented with @Vector(3, f64)
+TODO: Implement the kitty terminal image 
+TODO: Implement QOI image compression
+TODO: Use external library for the PNG
+TODO: Raytracing next week
 TODO: Fix the Vec3 class to just const Vec3 = @Vector(3, f64); and fix the operations
-TODO: Something might be wrong with the shadows they are skewed and don't look like the example.

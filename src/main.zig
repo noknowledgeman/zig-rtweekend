@@ -17,67 +17,72 @@ const Interval = @import("Interval.zig");
 
 const Buffer = @import("Buffer.zig");
 
+const util = @import("util.zig");
+
+fn final_render(allocator: std.mem.Allocator, world: *HittableList) !void {
+    var arena_allocator = std.heap.ArenaAllocator.init(allocator);
+    defer arena_allocator.deinit();
+    const arena = arena_allocator.allocator();
+
+    var ground_material = material.Lambertian{ .albedo = Color.init(0.5, 0.5, 0.5) };
+    var ground_sphere = Sphere.init(Point.init(0, -1000, 0), 1000, ground_material.material());
+    try world.add(ground_sphere.hittable());
+
+    var a: f64 = -11;
+    while (a < 11) : (a += 1) {
+        var b: f64 = -11;
+        while (b < 11) : (b += 1) {
+            const choose_mat = util.randomDouble();
+            const center = Point.init(a+0.9*util.randomDouble(), 0.2, b+0.9*util.randomDouble());
+
+            if (center.sub(Point.init(4, 0.2, 0)).length() > 0.9) {
+                var sphere = try arena.create(Sphere);
+                sphere.center = center;
+                sphere.radius = 0.2;
+
+                if (choose_mat < 0.8) {
+                    const albedo = Color.random().mul(Color.random());
+                    var sphere_material = try arena.create(material.Lambertian);
+                    sphere_material.albedo = albedo;
+                    sphere.mat = sphere_material.material();
+                } else if (choose_mat < 0.95) {
+                    const albedo = Color.randomInterval(Interval{.min = 0.5, .max = 1.0});
+                    const fuzz = util.randomDoubleInterval(Interval{.min = 0, .max = 0.5});
+                    var sphere_material = try arena.create(material.Metallic);
+                    sphere_material.fuzz = fuzz;
+                    sphere_material.albedo = albedo;
+                    sphere.mat = sphere_material.material();
+                } else {
+                    var sphere_material = try arena.create(material.Dielectric);
+                    sphere_material.refraction_index = 1.5;
+                    sphere.mat = sphere_material.material();
+                }
+                try world.add(sphere.hittable());
+            }
+        }
+    }
+
+    var material1 = material.Dielectric{ .refraction_index = 1.5 };
+    var sphere1 = Sphere.init(Point.init(0, 1, 0), 1.0, material1.material());
+    try world.add(sphere1.hittable());
+
+
+    var material2 = material.Lambertian{ .albedo = Color.init(0.4, 0.2, 0.1) };
+    var sphere2 = Sphere.init(Point.init(-4, 1, 0), 1.0, material2.material());
+    try world.add(sphere2.hittable());
+
+    var material3 = material.Metallic{ .albedo = Color.init(0.7, 0.6, 0.5), .fuzz = 0.0 };
+    var sphere3 = Sphere.init(Point.init(4, 1, 0), 1.0, material3.material());
+    try world.add(sphere3.hittable());
+}
+
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
 
     var world = HittableList.init(allocator);
     defer world.deinit();
 
-    // var arena_allocator = std.heap.ArenaAllocator.init(allocator);
-    // defer arena_allocator.deinit();
-    // const arena = arena_allocator.allocator();
-    //
-    // var ground_material = material.Lambertian{ .albedo = Color.init(0.5, 0.5, 0.5) };
-    // var ground_sphere = Sphere.init(Point.init(0, -1000, 0), 1000, ground_material.material());
-    // try world.add(ground_sphere.hittable());
-    //
-    // var a: f64 = -11;
-    // while (a < 11) : (a += 1) {
-    //     var b: f64 = -11;
-    //     while (b < 11) : (b += 1) {
-    //         const choose_mat = util.randomDouble();
-    //         const center = Point.init(a+0.9*util.randomDouble(), 0.2, b+0.9*util.randomDouble());
-    //
-    //         if (center.sub(Point.init(4, 0.2, 0)).length() > 0.9) {
-    //             var sphere = try arena.create(Sphere);
-    //             sphere.center = center;
-    //             sphere.radius = 0.2;
-    //
-    //             if (choose_mat < 0.8) {
-    //                 const albedo = Color.random().mul(Color.random());
-    //                 var sphere_material = try arena.create(material.Lambertian);
-    //                 sphere_material.albedo = albedo;
-    //                 sphere.mat = sphere_material.material();
-    //             } else if (choose_mat < 0.95) {
-    //                 const albedo = Color.randomInterval(Interval{.min = 0.5, .max = 1.0});
-    //                 const fuzz = util.randomDoubleInterval(Interval{.min = 0, .max = 0.5});
-    //                 var sphere_material = try arena.create(material.Metallic);
-    //                 sphere_material.fuzz = fuzz;
-    //                 sphere_material.albedo = albedo;
-    //                 sphere.mat = sphere_material.material();
-    //             } else {
-    //                 var sphere_material = try arena.create(material.Dielectric);
-    //                 sphere_material.refraction_index = 1.5;
-    //                 sphere.mat = sphere_material.material();
-    //             }
-    //             try world.add(sphere.hittable());
-    //         }
-    //     }
-    // }
-    //
-    // var material1 = material.Dielectric{ .refraction_index = 1.5 };
-    // var sphere1 = Sphere.init(Point.init(0, 1, 0), 1.0, material1.material());
-    // try world.add(sphere1.hittable());
-    //
-    //
-    // var material2 = material.Lambertian{ .albedo = Color.init(0.4, 0.2, 0.1) };
-    // var sphere2 = Sphere.init(Point.init(-4, 1, 0), 1.0, material2.material());
-    // try world.add(sphere2.hittable());
-    //
-    // var material3 = material.Metallic{ .albedo = Color.init(0.7, 0.6, 0.5), .fuzz = 0.0 };
-    // var sphere3 = Sphere.init(Point.init(4, 1, 0), 1.0, material3.material());
-    // try world.add(sphere3.hittable());
-    
+    // set up the world
     var material_ground = material.Lambertian{ .albedo = Color.init(0.8, 0.8, 0.0) };
     var material_center = material.Lambertian{ .albedo = Color.init(0.1, 0.2, 0.5) };
     var material_left = material.Dielectric{ .refraction_index = 1.50 };
@@ -96,24 +101,27 @@ pub fn main() !void {
     try world.add(sphere_bubble.hittable());
     try world.add(sphere_right.hittable());
 
+    // set up the camera
+    const im_opts: Camera.ImageOptions = .{
+        .aspect_ratio = (16.0/9.0),
+        .image_width = 400,
+        .samples_per_pixel = 100,
+        .max_depth = 50,
+    };
+    const cam_opts: Camera.CameraOptions = .{
+        .vfov = 20,
+        .lookfrom = Point.init(-2, 2, 1),
+        .lookat = Point.init(0, 0, -1),
+        .vup = Vec3.init(0, 1, 0),
+    };
+    const focus_opts: Camera.FocusOptions = .{
+        .defocus_angle = 10.0,
+        .focus_dist = 3.4,
+    };
 
-    var cam: Camera = undefined;
+    const cam = Camera.init(im_opts, cam_opts, focus_opts);
 
-    cam.aspect_ratio = 16.0/9.0;
-    cam.image_width = 400;
-    cam.samples_per_pixel = 100;
-    cam.max_depth = 50;
-
-    cam.vfov = 20;
-    cam.lookfrom = Point.init(-2, 2, 1);
-    cam.lookat = Point.init(0, 0, -1);
-    cam.vup = Vec3.init(0, 1, 0);
-
-    cam.defocus_angle = 10.0;
-    cam.focus_dist = 3.4;
-
-    cam.init();
-
+    // set up the Buffer and render to the buffer
     var buf = try Buffer.init(allocator, cam.image_width, cam._image_height);
     try cam.render(&buf, world.hittable());
 
