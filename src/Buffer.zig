@@ -41,22 +41,29 @@ pub fn deinit(self: *Buffer) void {
 pub fn writeAsPPM(self: Buffer, file_name: []const u8) !void {
     const file = try std.fs.cwd().createFile(file_name, .{.read = true});
     defer file.close();
+
     const writer = file.writer();
 
-    try writer.print("P3\n{}\n{}\n255\n", .{self.x, self.y});
+    try writer.print("P6\n{}\n{}\n255\n", .{self.x, self.y});
+
+    const byte_buffer: []u8 = try self.allocator.alloc(u8, self.x*self.y*3);
+    defer self.allocator.free(byte_buffer);
 
     const intensity = Interval{.min = 0.000, .max = 0.999};
-    for (self.buf.items) |c| {
+    for (self.buf.items, 0..) |c, ind| {
         var r, var g, var b = c.data;
 
         r = color.linearToGamma(r);
         g = color.linearToGamma(g);
         b = color.linearToGamma(b);
 
-        const rbyte: u16 = @intFromFloat(256 * intensity.clamp(r));
-        const gbyte: u16 = @intFromFloat(256 * intensity.clamp(g));
-        const bbyte: u16 = @intFromFloat(256 * intensity.clamp(b));
+        const rbyte: u8 = @intFromFloat(256 * intensity.clamp(r));
+        const gbyte: u8 = @intFromFloat(256 * intensity.clamp(g));
+        const bbyte: u8 = @intFromFloat(256 * intensity.clamp(b));
 
-        try writer.print("{} {} {}\n", .{rbyte, gbyte, bbyte});
+        byte_buffer[3*ind] = rbyte;
+        byte_buffer[3*ind+1] = gbyte;
+        byte_buffer[3*ind+2] = bbyte;
     }
+    _ = try writer.write(byte_buffer);
 }

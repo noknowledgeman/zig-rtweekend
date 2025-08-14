@@ -17,8 +17,6 @@ pub const Material = struct {
 pub const Lambertian = struct {
     albedo: Color,
 
-    // TODO: maybe add init but this is pretty straight forward so It can just be initialized
-
     fn scatter(ptr: *anyopaque, ray: Ray, hit_record: HitRecord, attenuation: *Color, scattered: *Ray) bool {
         _ = ray;
         const self: *Lambertian = @ptrCast(@alignCast(ptr));

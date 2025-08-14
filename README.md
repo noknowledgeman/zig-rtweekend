@@ -8,3 +8,7 @@ TODO: Implement QOI image compression
 TODO: Use external library for the PNG
 TODO: Raytracing next week
 TODO: Fix the Vec3 class to just const Vec3 = @Vector(3, f64); and fix the operations
+TODO: Triangles
+TODO: Multithreading
+TODO: BVH
+TODO: GPU Renderer

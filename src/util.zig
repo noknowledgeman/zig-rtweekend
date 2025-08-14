@@ -6,9 +6,12 @@ pub fn degreesToRadians(degrees: f64) f64 {
 }
 
 // TODO: Make the seed random
-var rand = std.Random.DefaultPrng.init(1);
+var rand: ?std.Random.Xoshiro256 = null;
 pub fn randomDouble() f64 {
-    return rand.random().float(f64);
+    if (rand == null) {
+        rand  = std.Random.DefaultPrng.init(@intCast(std.time.nanoTimestamp()));
+    }
+    return rand.?.random().float(f64);
 }
 
 pub fn randomDoubleInterval(int: Interval) f64 {
