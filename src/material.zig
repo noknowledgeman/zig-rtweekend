@@ -17,6 +17,12 @@ pub const Material = struct {
 pub const Lambertian = struct {
     albedo: Color,
 
+    pub fn init(allocator: std.mem.Allocator, albedo: Color) !*Lambertian {
+        const new = try allocator.create(Lambertian);
+        new.* = Lambertian{ .albedo = albedo };
+        return new;
+    }
+
     fn scatter(ptr: *anyopaque, ray: Ray, hit_record: HitRecord, attenuation: *Color, scattered: *Ray) bool {
         _ = ray;
         const self: *Lambertian = @ptrCast(@alignCast(ptr));
@@ -46,6 +52,12 @@ pub const Metallic = struct {
     albedo: Color,
     fuzz: f64,
 
+    pub fn init(allocator: std.mem.Allocator, albedo: Color, fuzz: f64) !*Metallic {
+        const new = try allocator.create(Metallic);
+        new.* = Metallic{ .albedo = albedo, .fuzz = fuzz };
+        return new;
+    }
+
     fn scatter(ptr: *anyopaque, r_in: Ray, rec: HitRecord, attenuation: *Color, scattered: *Ray) bool {
         const self: *Metallic = @ptrCast(@alignCast(ptr));
 
@@ -68,14 +80,19 @@ pub const Metallic = struct {
 pub const Dielectric = struct {
     refraction_index: f64,
 
+    pub fn init(allocator: std.mem.Allocator, refraction_index: f64) !*Dielectric {
+        const new = try allocator.create(Dielectric);
+        new.* = Dielectric{ .refraction_index = refraction_index };
+        return new;
+    }
+
     fn scatter(ptr: *anyopaque, r_in: Ray, rec: HitRecord, attenuation: *Color, scattered: *Ray) bool {
         const self: *Dielectric = @ptrCast(@alignCast(ptr));
 
         attenuation.* = Color.init(1.0, 1.0, 1.0);
         const ri = if (rec.front_face) (1.0/self.refraction_index) else self.refraction_index;
 
-        // NOTE: Following the tutorial but should not be necessary.
-        const unit_direction = r_in.dir.unitVector();
+        const unit_direction = r_in.dir;
 
         const cos_theta = @min(unit_direction.scale(-1.0).dot(rec.normal), 1.0);
         const sin_theta = @sqrt(1.0 - cos_theta*cos_theta);
