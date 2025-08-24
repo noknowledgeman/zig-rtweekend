@@ -103,6 +103,7 @@ pub fn main() !void {
 
     try final_render(allocator, &world);
 
+
     // set up the world
     // var material_ground = material.Lambertian{ .albedo = Color.init(0.8, 0.8, 0.0) };
     // var material_center = material.Lambertian{ .albedo = Color.init(0.1, 0.2, 0.5) };

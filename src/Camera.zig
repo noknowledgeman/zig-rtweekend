@@ -78,20 +78,24 @@ pub fn init(image_options: ImageOptions, camera_options: CameraOptions, focus_op
     var self: Camera = undefined;
     self.setOptions(image_options, camera_options, focus_options);
 
-
     self._pixel_samples_scale = 1.0 / @as(f64, @floatFromInt(self.samples_per_pixel));
 
+    // calcuate image height
     self._image_height = @intFromFloat(@as(f64, @floatFromInt(self.image_width)) / self.aspect_ratio);
     self._image_height = if (self._image_height < 1) 1 else self._image_height;
 
+    // take the camera cener
     self._center = self.lookfrom;
 
+    // calculate the fov
     const theta = util.degreesToRadians(self.vfov);
     const h = @tan(theta/2);
-    const viewport_height: f64 = 2.0 * h * self.focus_dist;
 
+    // cacluate the viewport height
+    const viewport_height: f64 = 2.0 * h * self.focus_dist;
     const viewport_width: f64 = viewport_height * (@as(f64, @floatFromInt(self.image_width))/@as(f64, @floatFromInt(self._image_height)));
 
+    // set the camera vectors
     self._w = self.lookfrom.sub(self.lookat).unitVector();
     self._u = self.vup.cross(self._w);
     self._v = self._w.cross(self._u);
@@ -111,6 +115,7 @@ pub fn init(image_options: ImageOptions, camera_options: CameraOptions, focus_op
         .sub(viewport_v.scale(0.5));
     self._pixel00_loc = viewport_upper_left.add(self._pixel_delta_u.add(self._pixel_delta_v).scale(0.5));
 
+    // set the defocus blurr
     const defocus_radius = self.focus_dist * @tan(util.degreesToRadians(self.defocus_angle/2.0));
     self._defocus_disc_u = self._u.scale(defocus_radius);
     self._defocus_disc_v = self._v.scale(defocus_radius);
@@ -118,28 +123,78 @@ pub fn init(image_options: ImageOptions, camera_options: CameraOptions, focus_op
     return self;
 }
 
+fn render_pixel(self: Camera, world: Hittable, i: usize, j: usize) Color {
+    const i_double: f64 = @floatFromInt(i);
+    const j_double: f64 = @floatFromInt(j);
+
+    var pixel_color = Color.init(0, 0, 0);
+    for (0..self.samples_per_pixel) |_| {
+        const r = self.getRay(i_double, j_double);
+
+        pixel_color = pixel_color.add(self.rayColor(r, self.max_depth, world));
+    }
+    return pixel_color;
+}
+
+fn renderRow(self: Camera, buffer: *Buffer, world: Hittable,  j: usize) !void {
+    for (0..@as(usize, self.image_width)) |i| {
+        const pixel_color = self.render_pixel(world, i, j);
+
+        try buffer.insertColor(pixel_color.scale(self._pixel_samples_scale), i, j);
+    }
+}
+
 pub fn render(self: Camera, buffer: *Buffer, world: Hittable) !void {
-    // initialize writers 
     const stderr = std.io.getStdErr().writer();
 
-    for (0..@as(usize, self._image_height)) |j_usize| {
-        try stderr.print("\rScanlines remaining: {} ", .{self._image_height - j_usize});
-        for (0..@as(usize, self.image_width)) |i_usize| {
-            const i: f64 = @floatFromInt(i_usize);
-            const j: f64 = @floatFromInt(j_usize);
-
-            var pixel_color = Color.init(0, 0, 0);
-            for (0..self.samples_per_pixel) |_| {
-                const r = self.getRay(i, j);
-
-                pixel_color = pixel_color.add(self.rayColor(r, self.max_depth, world));
-            }
-
-            try buffer.appendColor(pixel_color.scale(self._pixel_samples_scale));
-        }
+    for (0..@as(usize, self._image_height)) |j| {
+        try stderr.print("\rScanlines remaining: {} ", .{self._image_height - j});
+        try self.renderRow(buffer, world, j);
     }
 
     try stderr.print("\rDone.                           \n", .{});
+}
+
+const MTArg =  struct {
+    self: Camera,
+    buffer: *Buffer,
+    world: Hittable,
+    row: usize,
+    len: usize,
+};
+
+fn renderMultiThreadBlock(args: MTArg) !void {
+    for (args.row..(args.row + args.len)) |j| {
+        try args.self.renderRow(args.buffer, args.world, j);
+    }
+}
+
+pub fn renderMultiThread(self: Camera, allocator: std.mem.Allocator, buffer: *Buffer, world: Hittable) !void {
+    const num_cores = try std.Thread.getCpuCount();
+    const base = self._image_height / num_cores;
+    const rem = self._image_height % num_cores;
+
+    var handles = try std.ArrayList(std.Thread).initCapacity(allocator, num_cores);
+    defer handles.deinit();
+
+    for (0..num_cores) |core| {
+        const len = if (core < rem) base + 1 else base;
+
+        const args: MTArg = .{
+            .self = self,
+            .buffer = buffer,
+            .world = world,
+            .row = core * base,
+            .len = len
+        };
+
+        const handle = try std.Thread.spawn(.{}, renderMultiThreadBlock, .{args});
+        try handles.append(handle);
+    }
+
+    for (handles.items) |handle| {
+        handle.join();
+    }
 }
 
 /// Construct camera ray originating from the origin and directed at a randomly sampled point around i j.
