@@ -172,15 +172,17 @@ pub fn renderMultiThread(self: Camera, allocator: std.mem.Allocator, buffer: *Bu
     var handles = try std.ArrayList(std.Thread).initCapacity(allocator, num_cores);
     defer handles.deinit();
 
+    var offset: usize = 0;
     for (0..num_cores) |core| {
         const len = if (core < rem) base + 1 else base;
 
         const handle = try std.Thread.spawn(
             .{}, 
             renderMultiThreadBlock, 
-            .{self, buffer, world, core * base, len, core}
+            .{self, buffer, world, offset, len, core}
         );
         try handles.append(handle);
+        offset += len;
     }
 
     for (handles.items) |handle| {

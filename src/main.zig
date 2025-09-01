@@ -71,7 +71,7 @@ fn final_render(allocator: std.mem.Allocator, world: *HittableList) !void {
     const im_opts: Camera.ImageOptions = .{
         .aspect_ratio = (16.0/9.0),
         .image_width = 400,
-        .samples_per_pixel = 100,
+        .samples_per_pixel = 1,
         .max_depth = 50,
     };
     const cam_opts: Camera.CameraOptions = .{
