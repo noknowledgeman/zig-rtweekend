@@ -19,7 +19,6 @@ const Buffer = @import("Buffer.zig");
 
 const util = @import("util.zig");
 
-/// Expects an arena allocator 
 fn final_render(allocator: std.mem.Allocator, world: *HittableList) !void {
     var arena_allocator = std.heap.ArenaAllocator.init(allocator);
     defer arena_allocator.deinit();
@@ -100,52 +99,5 @@ pub fn main() !void {
     var world = HittableList.init(allocator);
     defer world.deinit();
 
-
     try final_render(allocator, &world);
-
-
-    // set up the world
-    // var material_ground = material.Lambertian{ .albedo = Color.init(0.8, 0.8, 0.0) };
-    // var material_center = material.Lambertian{ .albedo = Color.init(0.1, 0.2, 0.5) };
-    // var material_left = material.Dielectric{ .refraction_index = 1.50 };
-    // var material_bubble = material.Dielectric{ .refraction_index = (1.00/1.50) };
-    // var material_right = material.Metallic{ .albedo = Color.init(0.8, 0.6, 0.2), .fuzz = 1.0 };
-    //
-    // var sphere_ground = Sphere.init(Point.init(0.0, -100.5, -1.0), 100.0, material_ground.material());
-    // var sphere_center = Sphere.init(Point.init(0.0, 0.0, -1.2), 0.5, material_center.material());
-    // var sphere_left = Sphere.init(Point.init(-1.0, 0.0, -1.0), 0.5, material_left.material());
-    // var sphere_bubble = Sphere.init(Point.init(-1.0, 0.0, -1.0), 0.4, material_bubble.material());
-    // var sphere_right = Sphere.init(Point.init(1.0, 0.0, -1.0), 0.5, material_right.material());
-    //
-    // try world.add(sphere_ground.hittable());
-    // try world.add(sphere_center.hittable());
-    // try world.add(sphere_left.hittable());
-    // try world.add(sphere_bubble.hittable());
-    // try world.add(sphere_right.hittable());
-    //
-    // set up the camera
-    // const im_opts: Camera.ImageOptions = .{
-    //     .aspect_ratio = (16.0/9.0),
-    //     .image_width = 400,
-    //     .samples_per_pixel = 100,
-    //     .max_depth = 50,
-    // };
-    // const cam_opts: Camera.CameraOptions = .{
-    //     .vfov = 20,
-    //     .lookfrom = Point.init(-2, 2, 1),
-    //     .lookat = Point.init(0, 0, -1),
-    //     .vup = Vec3.init(0, 1, 0),
-    // };
-    // const focus_opts: Camera.FocusOptions = .{
-    //     .defocus_angle = 10.0,
-    //     .focus_dist = 3.4,
-    // };
-    //
-    // const cam = Camera.init(im_opts, cam_opts, focus_opts);
-    //
-    // // set up the Buffer and render to the buffer
-    // var buf = try Buffer.init(allocator, cam.image_width, cam._image_height);
-    // try cam.render(&buf, world.hittable());
-    //
-    // try buf.writeAsPPM("output.ppm");
 }

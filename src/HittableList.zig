@@ -1,10 +1,11 @@
+const std = @import("std");
+
 const HitRecord = @import("hittable.zig").HitRecord;
 const Hittable = @import("hittable.zig").Hittable;
-const Ray = @import("Ray.zig");
-const std = @import("std");
-const HittableList = @This();
 const Interval = @import("Interval.zig");
+const Ray = @import("Ray.zig");
 
+const HittableList = @This();
 objects: std.ArrayList(Hittable),
 allocator: std.mem.Allocator,
 

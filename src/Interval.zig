@@ -1,5 +1,6 @@
-const Interval = @This();
 const std = @import("std");
+
+const Interval = @This();
 
 pub const empty: Interval = init(std.math.inf(f64), -std.math.inf(f64));
 pub const universe: Interval = init(-std.math.inf(f64), std.math.inf(f64));

@@ -1,12 +1,12 @@
-const Sphere = @This();
-const Point = @import("vec3.zig").Point;
-const Hittable = @import("hittable.zig").Hittable;
-const Ray = @import("Ray.zig");
 const HitRecord = @import("hittable.zig").HitRecord;
+const Hittable = @import("hittable.zig").Hittable;
 const Interval = @import("Interval.zig");
 const Material = @import("material.zig").Material;
+const Point = @import("vec3.zig").Point;
+const Ray = @import("Ray.zig");
 const Vec3 = @import("vec3.zig").Vec3;
 
+const Sphere = @This();
 radius: f64,
 center: Point,
 mat: Material,

@@ -1,7 +1,6 @@
 const Camera = @This();
 const std = @import("std");
 const Ray = @import("Ray.zig");
-const color = @import("color.zig");
 const Color = @import("color.zig").Color;
 const Hittable = @import("hittable.zig").Hittable;
 const HitRecord = @import("hittable.zig").HitRecord;

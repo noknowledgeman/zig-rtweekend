@@ -1,7 +1,8 @@
 const std = @import("std");
 const math = std.math;
-const util = @import("util.zig");
+
 const Interval = @import("Interval.zig");
+const util = @import("util.zig");
 
 // all operations create a new vector.
 pub const Vec3 = struct {

@@ -1,4 +1,5 @@
 const std = @import("std");
+
 const Interval = @import("Interval.zig");
 
 pub fn degreesToRadians(degrees: f64) f64 {

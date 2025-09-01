@@ -1,9 +1,10 @@
 const std = @import("std");
-const Ray = @import("Ray.zig");
-const Vec3 = @import("vec3.zig").Vec3;
-const Point = @import("vec3.zig").Point;
+
 const Interval = @import("Interval.zig");
 const Material = @import("material.zig").Material;
+const Point = @import("vec3.zig").Point;
+const Ray = @import("Ray.zig");
+const Vec3 = @import("vec3.zig").Vec3;
 
 pub const HitRecord = struct {
     p: Point,

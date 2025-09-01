@@ -1,7 +1,7 @@
 const std = @import("std");
-const Vec3 = @import("vec3.zig").Vec3;
-const Interval = @import("Interval.zig");
 
+const Interval = @import("Interval.zig");
+const Vec3 = @import("vec3.zig").Vec3;
 pub const Color = Vec3;
 
 pub inline fn linearToGamma(linear_component: f64) f64 {

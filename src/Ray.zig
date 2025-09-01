@@ -1,4 +1,5 @@
 const std = @import("std");
+
 const vec3 = @import("vec3.zig");
 const Vec3 = vec3.Vec3;
 const Point = vec3.Point;
