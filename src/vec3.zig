@@ -14,53 +14,53 @@ pub const Vec3 = struct {
     }
 
     /// Adds this vector to another one
-    pub inline fn add(self: Vec3, other: Vec3) Vec3 {
+    pub fn add(self: Vec3, other: Vec3) Vec3 {
         return Vec3{ .data = self.data + other.data };
     }
 
     /// Multiplies the vector by element.
-    pub inline fn mul(self: Vec3, other: Vec3) Vec3 {
+    pub fn mul(self: Vec3, other: Vec3) Vec3 {
         return Vec3{ .data = self.data * other.data };
     }
 
-    pub inline fn sub(self: Vec3, other: Vec3) Vec3 {
+    pub fn sub(self: Vec3, other: Vec3) Vec3 {
         return Vec3{ .data = self.data - other.data };
     }
 
     /// Scales the vector bly a scalar
-    pub inline fn scale(self: Vec3, s: f64) Vec3  {
+    pub fn scale(self: Vec3, s: f64) Vec3  {
         return Vec3{ .data = self.data * @as(@Vector(3, f64), @splat(s)) };
     }
 
-    pub inline fn length(self: Vec3) f64 {
+    pub fn length(self: Vec3) f64 {
         return @sqrt(self.lengthSquared());
     }
 
-    pub inline fn lengthSquared(self: Vec3) f64 {
+    pub fn lengthSquared(self: Vec3) f64 {
         const lx, const ly,  const lz = self.data;
         return lx*lx + ly*ly + lz*lz;
     }
 
-    pub inline fn unitVector(self: Vec3) Vec3 {
+    pub fn unitVector(self: Vec3) Vec3 {
         return Vec3{ .data = self.data / @as(@Vector(3, f64), @splat(self.length())) };
     }
 
-    pub inline fn dot(self: Vec3, other: Vec3) f64 {
+    pub fn dot(self: Vec3, other: Vec3) f64 {
         const lx, const ly, const lz = self.data;
         const olx, const oly, const olz = other.data;
         return lx*olx + ly*oly + lz*olz;
     }
 
-    pub inline fn nearZero(self: Vec3) bool {
+    pub fn nearZero(self: Vec3) bool {
         const s = 1e-8;
         return (@abs(self.data[0]) < s) and (@abs(self.data[1]) < s) and (@abs(self.data[2]) < s);
     }
 
-    pub inline fn reflect(self: Vec3, n: Vec3) Vec3 {
+    pub fn reflect(self: Vec3, n: Vec3) Vec3 {
         return self.sub(n.scale(2*n.dot(self)));
     }
 
-    pub inline fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) Vec3 {
+    pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) Vec3 {
         const cos_theta = @min(uv.scale(-1).dot(n), 1.0);
         const r_out_perp = uv.add(n.scale(cos_theta)).scale(etai_over_etat);
         const r_out_parallel = n.scale(-1*@sqrt(@abs(1.0 - r_out_perp.lengthSquared())));
@@ -68,7 +68,7 @@ pub const Vec3 = struct {
         return r_out_perp.add(r_out_parallel);
     }
 
-    pub inline fn cross(self: Vec3, other: Vec3) Vec3 {
+    pub fn cross(self: Vec3, other: Vec3) Vec3 {
         return .{
             .data = @Vector(3, f64){
                 self.data[1]*other.data[2] - self.data[2]*other.data[1],
@@ -78,9 +78,9 @@ pub const Vec3 = struct {
         };
     }
 
-    pub inline fn x(self: Vec3) f64 {return self.data[0];}
-    pub inline fn y(self: Vec3) f64 {return self.data[1];}
-    pub inline fn z(self: Vec3) f64 {return self.data[0];}
+    pub fn x(self: Vec3) f64 {return self.data[0];}
+    pub fn y(self: Vec3) f64 {return self.data[1];}
+    pub fn z(self: Vec3) f64 {return self.data[0];}
 
     pub fn randomUnitVector() Vec3 {
         while (true) {
