@@ -6,6 +6,7 @@
 - [ ] Triangles
 - [ ] Implement some sort of file format like stl for triangles
 - [ ] BVH
+- [ ] motion blur
 - [ ] serious optimization
 - [ ] Implement QOI image compression
 - [ ] Raytracing next week

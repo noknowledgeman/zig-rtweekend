@@ -8,15 +8,6 @@ const Ray = @This();
 
 orig: Point,
 dir: Vec3,
-tm: f64 = 0,
-
-pub fn initTm(orig: Point, dir: Vec3, tm: f64) Ray {
-    return .{
-        .orig = orig, 
-        .dir =  dir.unitVector(),
-        .tm = tm,
-    };
-}
 
 pub fn init(orig: Point, dir: Vec3) Ray {
     return .{
