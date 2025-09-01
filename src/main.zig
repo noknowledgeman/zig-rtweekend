@@ -88,7 +88,7 @@ fn final_render(allocator: std.mem.Allocator, world: *HittableList) !void {
     const cam = Camera.init(im_opts, cam_opts, focus_opts);
 
     var buf = try Buffer.init(allocator, cam.image_width, cam._image_height);
-    try cam.render(&buf, world.hittable());
+    try cam.renderMultiThread(allocator, &buf, world.hittable());
 
     try buf.writeAsPPM("output.ppm");
 }

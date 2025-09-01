@@ -154,18 +154,14 @@ pub fn render(self: Camera, buffer: *Buffer, world: Hittable) !void {
     try stderr.print("\rDone.                           \n", .{});
 }
 
-const MTArg =  struct {
-    self: Camera,
-    buffer: *Buffer,
-    world: Hittable,
-    row: usize,
-    len: usize,
-};
 
-fn renderMultiThreadBlock(args: MTArg) !void {
-    for (args.row..(args.row + args.len)) |j| {
-        try args.self.renderRow(args.buffer, args.world, j);
+fn renderMultiThreadBlock(self: Camera, buffer: *Buffer, world: Hittable, row: usize, len: usize, thread: usize) !void {
+    const stderr = std.io.getStdErr().writer();
+    for (row..(row + len)) |j| {
+        try stderr.print("Thread {} is rendering row {}\n", .{thread, j});
+        try self.renderRow(buffer, world, j);
     }
+    try stderr.print("Thread {} finished Rendering\n", .{thread});
 }
 
 pub fn renderMultiThread(self: Camera, allocator: std.mem.Allocator, buffer: *Buffer, world: Hittable) !void {
@@ -179,15 +175,11 @@ pub fn renderMultiThread(self: Camera, allocator: std.mem.Allocator, buffer: *Bu
     for (0..num_cores) |core| {
         const len = if (core < rem) base + 1 else base;
 
-        const args: MTArg = .{
-            .self = self,
-            .buffer = buffer,
-            .world = world,
-            .row = core * base,
-            .len = len
-        };
-
-        const handle = try std.Thread.spawn(.{}, renderMultiThreadBlock, .{args});
+        const handle = try std.Thread.spawn(
+            .{}, 
+            renderMultiThreadBlock, 
+            .{self, buffer, world, core * base, len, core}
+        );
         try handles.append(handle);
     }
 
