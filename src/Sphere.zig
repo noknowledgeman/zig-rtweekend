@@ -24,7 +24,7 @@ fn hit(ptr: *anyopaque, ray: Ray, ray_t: Interval, rec: *HitRecord) bool {
 
     const oc = self.center.sub(ray.orig);
 
-    const a: f64 =  ray.dir.lengthSquared();
+    const a: f64 = ray.dir.lengthSquared();
     const h: f64 = ray.dir.dot(oc);
     const c: f64 = oc.lengthSquared() - self.radius*self.radius;
 

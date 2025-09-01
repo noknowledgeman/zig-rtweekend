@@ -1,14 +1,16 @@
 # Raytracing in a Weekend with Zig
 
-## Vec3
+## TODOS
 
-The vec3 will be implemented with @Vector(3, f64)
-TODO: Implement the kitty terminal image 
-TODO: Implement QOI image compression
-TODO: Use external library for the PNG
-TODO: Raytracing next week
-TODO: Fix the Vec3 class to just const Vec3 = @Vector(3, f64); and fix the operations
-TODO: Triangles
-TODO: Multithreading
-TODO: BVH
-TODO: GPU Renderer
+- [x] Multithreading
+- [ ] Triangles
+- [ ] Implement some sort of file format like stl for triangles
+- [ ] BVH
+- [ ] serious optimization
+- [ ] Implement QOI image compression
+- [ ] Raytracing next week
+- [ ] Implement the kitty terminal image 
+- [ ] GPU Renderer
+- [ ] Use external library for the PNG
+- [ ] Fix the multithreading by making each thread do a different amount of work? Not sure if reasonable
+- [ ] Fix the Vec3 class to just const Vec3 = @Vector(3, f64); and fix the operations
