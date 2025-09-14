@@ -19,6 +19,8 @@ const Buffer = @import("Buffer.zig");
 
 const util = @import("util.zig");
 
+const Renderer = @import("renderers/MultithreadedRenderer.zig");
+
 fn final_render(allocator: std.mem.Allocator, world: *HittableList) !void {
     var arena_allocator = std.heap.ArenaAllocator.init(allocator);
     defer arena_allocator.deinit();
@@ -86,9 +88,11 @@ fn final_render(allocator: std.mem.Allocator, world: *HittableList) !void {
     };
 
     const cam = Camera.init(im_opts, cam_opts, focus_opts);
+    
+    const renderer = Renderer{.camera = cam};
 
     var buf = try Buffer.init(allocator, cam.image_width, cam._image_height);
-    try cam.renderMultiThread(allocator, &buf, world.hittable());
+    try renderer.render(allocator, &buf, world.hittable());
 
     try buf.writeAsPPM("output.ppm");
 }

@@ -13,7 +13,6 @@ pub fn init(orig: Point, dir: Vec3) Ray {
     return .{
         .orig = orig,
         .dir = dir.unitVector(),
-        .tm = 0,
     };
 }
 

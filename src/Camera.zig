@@ -122,7 +122,7 @@ pub fn init(image_options: ImageOptions, camera_options: CameraOptions, focus_op
     return self;
 }
 
-fn render_pixel(self: Camera, world: Hittable, i: usize, j: usize) Color {
+pub fn render_pixel(self: Camera, world: Hittable, i: usize, j: usize) Color {
     const i_double: f64 = @floatFromInt(i);
     const j_double: f64 = @floatFromInt(j);
 
@@ -135,63 +135,8 @@ fn render_pixel(self: Camera, world: Hittable, i: usize, j: usize) Color {
     return pixel_color;
 }
 
-fn renderRow(self: Camera, buffer: *Buffer, world: Hittable,  j: usize) !void {
-    for (0..@as(usize, self.image_width)) |i| {
-        const pixel_color = self.render_pixel(world, i, j);
-
-        try buffer.insertColor(pixel_color.scale(self._pixel_samples_scale), i, j);
-    }
-}
-
-pub fn render(self: Camera, buffer: *Buffer, world: Hittable) !void {
-    const stderr = std.io.getStdErr().writer();
-
-    for (0..@as(usize, self._image_height)) |j| {
-        try stderr.print("\rScanlines remaining: {} ", .{self._image_height - j});
-        try self.renderRow(buffer, world, j);
-    }
-
-    try stderr.print("\rDone.                           \n", .{});
-}
-
-
-fn renderMultiThreadBlock(self: Camera, buffer: *Buffer, world: Hittable, row: usize, len: usize, thread: usize) !void {
-    const stderr = std.io.getStdErr().writer();
-    for (row..(row + len)) |j| {
-        try stderr.print("Thread {} is rendering row {}\n", .{thread, j});
-        try self.renderRow(buffer, world, j);
-    }
-    try stderr.print("Thread {} finished Rendering\n", .{thread});
-}
-
-pub fn renderMultiThread(self: Camera, allocator: std.mem.Allocator, buffer: *Buffer, world: Hittable) !void {
-    const num_cores = try std.Thread.getCpuCount();
-    const base = self._image_height / num_cores;
-    const rem = self._image_height % num_cores;
-
-    var handles = try std.ArrayList(std.Thread).initCapacity(allocator, num_cores);
-    defer handles.deinit();
-
-    var offset: usize = 0;
-    for (0..num_cores) |core| {
-        const len = if (core < rem) base + 1 else base;
-
-        const handle = try std.Thread.spawn(
-            .{}, 
-            renderMultiThreadBlock, 
-            .{self, buffer, world, offset, len, core}
-        );
-        try handles.append(handle);
-        offset += len;
-    }
-
-    for (handles.items) |handle| {
-        handle.join();
-    }
-}
-
 /// Construct camera ray originating from the origin and directed at a randomly sampled point around i j.
-fn getRay(self: Camera, i: f64, j: f64) Ray {
+pub fn getRay(self: Camera, i: f64, j: f64) Ray {
     const offset = sampleSquare();
 
     const pixel_sample = self._pixel00_loc
@@ -201,7 +146,7 @@ fn getRay(self: Camera, i: f64, j: f64) Ray {
     const ray_origin = if (self.defocus_angle <= 0) self._center else self.defocusDiskSample();
     const ray_direction = pixel_sample.sub(ray_origin);
 
-    return Ray.initWithTime(ray_origin, ray_direction);
+    return Ray.init(ray_origin, ray_direction);
 }
 
 fn sampleSquare() Vec3 {
