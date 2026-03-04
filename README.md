@@ -1,5 +1,7 @@
 # Raytracing in a Weekend with Zig
 
+This is the implementation of the book Raytracing in one Weekend in zig. 
+
 ## TODOS
 
 - [x] Multithreading
