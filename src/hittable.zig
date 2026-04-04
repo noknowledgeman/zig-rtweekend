@@ -34,6 +34,7 @@ pub const Hittable = struct {
         if (self.boundingBoxFn) |boundingBoxFn| {
             return boundingBoxFn(self.ptr);
         } else {
+            // Bad undefined
             return undefined;
         }
     }

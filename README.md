@@ -2,12 +2,17 @@
 
 This is the implementation of the book Raytracing in one Weekend in zig. 
 
+## Benchmarks
+
+Checking out bench for benchmarks
+
+
 ## TODOS
 
 - [x] Multithreading
+- [ ] BVH
 - [ ] Triangles
 - [ ] Implement some sort of file format like stl for triangles
-- [ ] BVH
 - [ ] motion blur
 - [ ] serious optimization
 - [ ] Implement QOI image compression
