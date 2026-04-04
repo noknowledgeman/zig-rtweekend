@@ -42,11 +42,11 @@ pub fn writeAsPPM(self: Buffer, file_name: []const u8) !void {
     const file = try std.fs.cwd().createFile(file_name, .{.read = true});
     defer file.close();
 
-    const writer = file.writer();
+    var writer = file.writer(&.{});
  
     // The binary ppm header
-    try writer.print("P6\n{}\n{}\n255\n", .{self.x, self.y});
+    try writer.interface.print("P6\n{}\n{}\n255\n", .{self.x, self.y});
 
     // just write the buffer
-    _ = try writer.write(self.buf);
+    _ = try writer.interface.write(self.buf);
 }

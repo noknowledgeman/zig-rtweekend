@@ -12,12 +12,12 @@ allocator: std.mem.Allocator,
 pub fn init(allocator: std.mem.Allocator) HittableList {
     return .{
         .allocator = allocator,
-        .objects = std.ArrayList(Hittable).init(allocator),
+        .objects = std.ArrayList(Hittable).empty,
     };
 }
 
 pub fn deinit(self: *HittableList) void {
-    self.objects.deinit();
+    self.objects.deinit(self.allocator);
 }
 
 fn hit(ptr: *anyopaque, ray: Ray, ray_t: Interval, hit_record: *HitRecord) bool {
@@ -48,6 +48,6 @@ pub fn hittable(self: *HittableList) Hittable {
 }
 
 pub fn add(self: *HittableList, object: Hittable) !void  {
-    try self.objects.append(object);
+    try self.objects.append(self.allocator, object);
 }
 
