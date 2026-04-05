@@ -15,6 +15,13 @@ pub fn init(min: f64, max: f64) Interval {
     };
 }
 
+pub fn combine(a: Interval, b: Interval) Interval {
+    return .{
+        .min = @min(a.min, b.min),
+        .max = @max(a.max, b.max),
+    };
+}
+
 pub fn size(self: Interval) f64 {
     return self.max - self.min;
 }

@@ -92,7 +92,12 @@ fn final_render(allocator: std.mem.Allocator, world: *HittableList) !void {
     const renderer = Renderer{.camera = cam};
 
     var buf = try Buffer.init(allocator, cam.image_width, cam._image_height);
+    
+    const before = std.time.milliTimestamp();
     try renderer.render(allocator, &buf, world.hittable());
+    const after = std.time.milliTimestamp();
+    
+    std.debug.print("The rendering took {d} millis.\n", .{after - before});
 
     try buf.writeAsPPM("output.ppm");
 }

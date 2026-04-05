@@ -15,11 +15,12 @@ mat: Material,
 bbox: AaBb = .{},
 
 pub fn init(center: Point, radius: f64, mat: Material) Sphere {
-    // const rvec = Vec3.init(radius, radius, radius);
+    const rvec = Vec3.init(radius, radius, radius);
     return .{
         .center = center,
         .radius = @max(0, radius),
         .mat = mat,
+        .bbox = .initWithPoints(center.sub(rvec), center.add(rvec)),
     };
 }
 

@@ -18,8 +18,8 @@ pub fn randomDoubleInterval(int: Interval) f64 {
     return int.min + (int.max-int.min)*randomDouble();
 }
 
-pub fn createInit(allocator: std.mem.Allocator, comptime T: type, props: anytype) T {
-    const new = allocator.create(T);
+pub fn createInit(allocator: std.mem.Allocator, comptime T: type, props: anytype) !T {
+    const new = try allocator.create(T);
     new.* = props;
     return new;
 }

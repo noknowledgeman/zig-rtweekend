@@ -1,17 +1,18 @@
 const std = @import("std");
 const Renderer = @This();
-const Camera = @import("Camera.zig");
-const Buffer = @import("Buffer.zig");
-const Hittable = @import("hittable.zig").Hittable;
-const Color = @import("color.zig").Color;
+const Camera = @import("../Camera.zig");
+const Buffer = @import("../Buffer.zig");
+const Hittable = @import("../hittable.zig").Hittable;
+const Color = @import("../color.zig").Color;
 
 camera: Camera,
 
-pub fn render(self: Renderer, buffer: *Buffer, world: Hittable) !void {
-    const stderr = std.io.getStdErr().writer();
+pub fn render(self: Renderer, allocator: std.mem.Allocator, buffer: *Buffer, world: Hittable) !void {
+    _ = allocator;
+    
 
     for (0..@as(usize, self.camera._image_height)) |j| {
-        try stderr.print("\rScanlines remaining: {} ", .{self.camera._image_height - j});
+        std.debug.print("\rScanlines remaining: {} ", .{self.camera._image_height - j});
         for (0..@as(usize, self.camera.image_width)) |i| {
             const pixel_color = self.camera.render_pixel(world, i, j);
     
@@ -20,6 +21,6 @@ pub fn render(self: Renderer, buffer: *Buffer, world: Hittable) !void {
         }
     }
 
-    try stderr.print("\rDone.                           \n", .{});
+    std.debug.print("\rDone.                           \n", .{});
 }
 

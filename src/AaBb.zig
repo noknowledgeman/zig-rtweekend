@@ -19,6 +19,14 @@ pub fn initWithPoints(a: Point, b: Point) AaBb {
     };
 }
 
+pub fn combine(a: AaBb, b: AaBb) AaBb {
+    return .{
+        .x =  Interval.combine(a.x, b.x),
+        .y =  Interval.combine(a.y, b.y),
+        .z =  Interval.combine(a.z, b.z),
+    };
+}
+
 pub fn axisInterval(self: AaBb, n: u32) Interval {
     if (n == 1) return self.y;
     if (n == 2) return self.z;
