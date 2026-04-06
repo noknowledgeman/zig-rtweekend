@@ -17,7 +17,6 @@ pub fn initWithPoints(a: Point, b: Point) AaBb {
     const z = if (a.z() <= b.z()) Interval.init(a.z(), b.z()) else Interval.init(b.z(), a.z());
     
     var aabb = AaBb{.x = x, .y = y, .z = z};
-    std.debug.print("The AABB of point: {any} and point: {any} has bbox of {any}\n\n", .{a, b, aabb});
     
     aabb.padToMinimums();
     
@@ -31,7 +30,6 @@ pub fn combine(a: AaBb, b: AaBb) AaBb {
         .z =  Interval.combine(a.z, b.z),
     };
     
-    std.debug.print("{any} + {any} is equal to: {any}\n", .{a, b, new});
     return new;
 }
 

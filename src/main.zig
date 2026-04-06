@@ -77,8 +77,8 @@ fn final_render(allocator: std.mem.Allocator) !void {
 
     const im_opts: Camera.ImageOptions = .{
         .aspect_ratio = (16.0/9.0),
-        .image_width = 400,
-        .samples_per_pixel = 5,
+        .image_width = 1200,
+        .samples_per_pixel = 500,
         .max_depth = 50,
     };
     const cam_opts: Camera.CameraOptions = .{
@@ -99,17 +99,12 @@ fn final_render(allocator: std.mem.Allocator) !void {
     var buf = try Buffer.init(arena, cam.image_width, cam._image_height);
     
     const bvh = try BVH.initFromHittables(arena, world.objects.items);
-    std.debug.print("Root bbox: ({d},{d}) ({d},{d}) ({d},{d})\n", .{
-        bvh.bbox.x.min, bvh.bbox.x.max,
-        bvh.bbox.y.min, bvh.bbox.y.max,
-        bvh.bbox.z.min, bvh.bbox.z.max,
-    });
     
-    var list = HittableList.init(arena);
-    try list.add(bvh.hittable());
+    // var list = HittableList.init(arena);
+    // try list.add(bvh.hittable());
     
     const before = std.time.milliTimestamp();
-    try renderer.render(arena, &buf, list.hittable());
+    try renderer.render(arena, &buf, bvh.hittable());
     const after = std.time.milliTimestamp();
     
     std.debug.print("The rendering took {d} millis.\n", .{after - before});
@@ -125,60 +120,6 @@ pub fn main() !void {
         }
     }
     const allocator = debug_allocator.allocator();
-    
-    // var sphere1 = Sphere.init(.zero, 1, Material.zero);
-    // std.debug.print("sphere 1 at {any} = {any}\n", .{sphere1.center, sphere1.bbox});
-    // var sphere2 = Sphere.init(.init(2, 0, 0), 1, Material.zero);
-    // std.debug.print("sphere 2 at {any} = {any}\n", .{sphere2.center, sphere2.bbox});
-    // var sphere3 = Sphere.init(.init(0, 2, 0), 1, Material.zero);
-    // std.debug.print("sphere 3 at {any} = {any}\n", .{sphere3.center, sphere3.bbox});
-    // var sphere4 = Sphere.init(.init(0, 0, 2), 1, Material.zero);
-    // std.debug.print("sphere 4 at {any} = {any}\n", .{sphere4.center, sphere4.bbox});
-    
-    // var list: HittableList = .init(allocator);
-    // defer list.deinit();
-    // try list.add(sphere1.hittable());
-    // try list.add(sphere2.hittable());
-    // try list.add(sphere3.hittable());
-    // try list.add(sphere4.hittable());
-    
-    // var arena_allocator = std.heap.ArenaAllocator.init(allocator);
-    // const arena = arena_allocator.allocator();
-    // defer arena_allocator.deinit();
-    // const bvh = try BVH.initFromHittables(arena, list.objects.items);
-    
-    // std.debug.print("{any}\n", .{list.bbox});
-    
-    // const im_opts: Camera.ImageOptions = .{
-    //     .aspect_ratio = (16.0/9.0),
-    //     .image_width = 400,
-    //     .samples_per_pixel = 5,
-    //     .max_depth = 50,
-    // };
-    // const cam_opts: Camera.CameraOptions = .{
-    //     .vfov = 90,
-    //     .lookfrom = Point.init(5, 5, 5),
-    //     .lookat = Point.init(0, 0, 0),
-    //     .vup = Vec3.init(0, 1, 0),
-    // };
-    // const focus_opts: Camera.FocusOptions = .{
-    //     .defocus_angle = 0.6,
-    //     .focus_dist = 10.0,
-    // };
-
-    // const cam = Camera.init(im_opts, cam_opts, focus_opts);
-    
-    // const renderer = Renderer{.camera = cam};
-
-    // var buf = try Buffer.init(arena, cam.image_width, cam._image_height);
-    
-    // const before = std.time.milliTimestamp();
-    // try renderer.render(arena, &buf, bvh.hittable());
-    // const after = std.time.milliTimestamp();
-    
-    // std.debug.print("The rendering took {d} millis.\n", .{after - before});
-
-    // try buf.writeAsPPM("output.ppm");
     
     try final_render(allocator);
 }

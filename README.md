@@ -14,6 +14,7 @@ I tried with -Doptimize=Debug but that would have taken around 3 hours. Moved to
 - With the MultithreadedRenderer.zig it was 526675 millis
 - With the MultithreadedRenderer.zig and a basic BVH it is 827524
 - With fix to         if (!self.bbox.hit(ray, ray_t)) return false; from         if (self.bbox.hit(ray, ray_t)) return false;
+- With working BVH and multithreading 134018 millis
 
 ## TODOS
 

@@ -18,7 +18,6 @@ bbox: AaBb = .{},
 pub fn init(center: Point, radius: f64, mat: Material) Sphere {
     const rvec = Vec3.init(radius, radius, radius);
     const bbox: AaBb = .initWithPoints(center.sub(rvec), center.add(rvec));
-    std.debug.print("rvec: {any} center.sub(rvec): {any}, center.add(rvec): {any}\n\n", .{rvec, center.sub(rvec), center.add(rvec)});
     return .{
         .center = center,
         .radius = @max(0, radius),
