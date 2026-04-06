@@ -12,6 +12,11 @@ pub const BVH = struct {
     left: Hittable,
     right: Hittable,
     
+    const vtable: Hittable.VTable = .{
+        .boundingBoxFn = boundingBox,
+        .hitFn = hit,
+    };
+    
     /// Makes a bvh from the slice of Hittables, changes the order of the Hittable slice.
     pub fn initFromHittables(arena: std.mem.Allocator, hittables: []Hittable) !*BVH {
         const bvh = try arena.create(BVH);
@@ -62,8 +67,7 @@ pub const BVH = struct {
     
     pub fn hittable(self: *BVH) Hittable {
         return .{
-            .boundingBoxFn = boundingBox,
-            .hitFn = hit,
+            .vtable = &vtable,
             .ptr = self,
         };
     }

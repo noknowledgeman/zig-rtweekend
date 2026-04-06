@@ -12,6 +12,11 @@ objects: std.ArrayList(Hittable),
 allocator: std.mem.Allocator,
 bbox: AaBb = .{},
 
+const vtable: Hittable.VTable = .{
+    .boundingBoxFn = boundingBox,
+    .hitFn = hit,
+};
+
 pub fn init(allocator: std.mem.Allocator) HittableList {
     return .{
         .allocator = allocator,
@@ -50,8 +55,7 @@ fn boundingBox(ptr: *anyopaque) AaBb {
 
 pub fn hittable(self: *HittableList) Hittable {
     return .{
-        .hitFn = hit,
-        .boundingBoxFn = boundingBox,
+        .vtable = &vtable,
         .ptr = self,
     };
 }

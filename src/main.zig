@@ -1,7 +1,7 @@
 const std = @import("std");
 
 const HittableList = @import("HittableList.zig");
-const Sphere = @import("Sphere.zig");
+const Sphere = @import("primitives/Sphere.zig");
 
 const vec3 = @import("vec3.zig");
 const Point = vec3.Point;
@@ -78,7 +78,7 @@ fn final_render(allocator: std.mem.Allocator) !void {
     const im_opts: Camera.ImageOptions = .{
         .aspect_ratio = (16.0/9.0),
         .image_width = 1200,
-        .samples_per_pixel = 500,
+        .samples_per_pixel = 20,
         .max_depth = 50,
     };
     const cam_opts: Camera.CameraOptions = .{

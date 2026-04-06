@@ -21,6 +21,14 @@ pub const HitRecord = struct {
 };
 
 pub const Hittable = struct {
+    ptr: *anyopaque,
+    vtable: *const VTable,
+    
+    pub const VTable = struct {
+        hitFn: *const fn(ptr: *anyopaque, ray: Ray, ray_t: Interval, hit_record: *HitRecord) bool,
+        boundingBoxFn: *const fn(ptr: *anyopaque) AaBb,
+    };
+
     pub const NullHittable = struct {
         fn nullHit(ptr: *anyopaque, ray: Ray, ray_t: Interval, hit_record: *HitRecord) bool {
             _ = ptr;
@@ -37,28 +45,21 @@ pub const Hittable = struct {
         
         pub fn hittable() Hittable {
             return .{
-                .hitFn = nullHit,
-                .boundingBoxFn = nullBoundingBox,
+                .vtable = .{
+                    .hitFn = nullHit,
+                    .boundingBoxFn = nullBoundingBox,
+                },
                 .ptr = undefined,
             };
         }
     };
     
-    ptr: *anyopaque,
-    hitFn: *const fn(ptr: *anyopaque, ray: Ray, ray_t: Interval, hit_record: *HitRecord) bool,
-    // TODO: Convert to VTable (idk why)
-    boundingBoxFn: ?*const fn(ptr: *anyopaque) AaBb = null,
-
     pub fn hit(self: Hittable, ray: Ray, ray_t: Interval, hit_record: *HitRecord) bool {
-        return self.hitFn(self.ptr, ray, ray_t, hit_record);
+        return self.vtable.hitFn(self.ptr, ray, ray_t, hit_record);
     }
     // NOTE: THe bounding box is optional in this case
     pub fn boundingBox(self: Hittable) AaBb {
-        if (self.boundingBoxFn) |boundingBoxFn| {
-            return boundingBoxFn(self.ptr);
-        } else {
-            unreachable;
-        }
+        return self.vtable.boundingBoxFn(self.ptr);
     }
 };
 

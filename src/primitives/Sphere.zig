@@ -1,12 +1,12 @@
 const std = @import("std");
-const HitRecord = @import("hittable.zig").HitRecord;
-const Hittable = @import("hittable.zig").Hittable;
-const Interval = @import("Interval.zig");
-const Material = @import("material.zig").Material;
-const Point = @import("vec3.zig").Point;
-const Ray = @import("Ray.zig");
-const Vec3 = @import("vec3.zig").Vec3;
-const AaBb = @import("AaBb.zig");
+const HitRecord = @import("../hittable.zig").HitRecord;
+const Hittable = @import("../hittable.zig").Hittable;
+const Interval = @import("../Interval.zig");
+const Material = @import("../material.zig").Material;
+const Point = @import("../vec3.zig").Point;
+const Ray = @import("../Ray.zig");
+const Vec3 = @import("../vec3.zig").Vec3;
+const AaBb = @import("../AaBb.zig");
 
 const Sphere = @This();
 
@@ -14,6 +14,11 @@ radius: f64,
 center: Point,
 mat: Material,
 bbox: AaBb = .{},
+
+const vtable: Hittable.VTable = .{
+    .boundingBoxFn = boundingBox,
+    .hitFn = hit,
+};
 
 pub fn init(center: Point, radius: f64, mat: Material) Sphere {
     const rvec = Vec3.init(radius, radius, radius);
@@ -67,8 +72,7 @@ fn boundingBox(ptr: *anyopaque) AaBb {
 pub fn hittable(self: *Sphere) Hittable {
     return .{
         .ptr = self,
-        .hitFn = hit,
-        .boundingBoxFn = boundingBox,
+        .vtable = &vtable,
     };
 }
 
