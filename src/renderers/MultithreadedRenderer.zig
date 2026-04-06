@@ -34,7 +34,6 @@ fn renderMultiThreadBlock(self: MultithreadedRenderer, buffer: *Buffer, world: H
     while (queue.pop()) |row| {
         std.debug.print("Thread {} is rendering row {}\n", .{thread, row});
         try self.renderRow(buffer, world, row);
-        std.debug.print("Thread {} finished Rendering\n", .{thread});
     }
 }
 

@@ -58,5 +58,6 @@ pub fn hittable(self: *HittableList) Hittable {
 
 pub fn add(self: *HittableList, object: Hittable) !void  {
     try self.objects.append(self.allocator, object);
+    // std.debug.print("{d}: {any}\n", .{self.objects.items.len, self.bbox});
+    self.bbox = AaBb.combine(self.bbox, object.boundingBox());
 }
-

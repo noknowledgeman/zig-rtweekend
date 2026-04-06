@@ -8,7 +8,7 @@ const Vec3 = @import("vec3.zig").Vec3;
 const AaBb = @import("AaBb.zig");
 
 pub const HitRecord = struct {
-    p: Point,
+    p: Point = .init(0, 0, 0),
     normal: Vec3,
     t: f64,
     front_face: bool,
@@ -21,6 +21,29 @@ pub const HitRecord = struct {
 };
 
 pub const Hittable = struct {
+    pub const NullHittable = struct {
+        fn nullHit(ptr: *anyopaque, ray: Ray, ray_t: Interval, hit_record: *HitRecord) bool {
+            _ = ptr;
+            _ = ray; 
+            _ = ray_t;
+            _ = hit_record;
+            return false;
+        }
+        
+        fn nullBoundingBox(ptr: *anyopaque) AaBb {
+            _  = ptr;
+            return .{};
+        }
+        
+        pub fn hittable() Hittable {
+            return .{
+                .hitFn = nullHit,
+                .boundingBoxFn = nullBoundingBox,
+                .ptr = undefined,
+            };
+        }
+    };
+    
     ptr: *anyopaque,
     hitFn: *const fn(ptr: *anyopaque, ray: Ray, ray_t: Interval, hit_record: *HitRecord) bool,
     // TODO: Convert to VTable (idk why)
@@ -34,9 +57,10 @@ pub const Hittable = struct {
         if (self.boundingBoxFn) |boundingBoxFn| {
             return boundingBoxFn(self.ptr);
         } else {
-            // Bad undefined
-            return undefined;
+            unreachable;
         }
     }
 };
+
+
 

@@ -7,7 +7,9 @@ const util = @import("util.zig");
 // all operations create a new vector.
 pub const Vec3 = struct {
     data: @Vector(3, f64),
-
+    
+    pub const zero: Vec3 = .init(0, 0, 0);
+    
     /// Initialilzes the Vec3
     pub fn init(lx: f64, ly: f64, lz: f64) Vec3 {
         return .{ .data = @Vector(3, f64){ lx, ly, lz }};
@@ -80,7 +82,7 @@ pub const Vec3 = struct {
 
     pub fn x(self: Vec3) f64 {return self.data[0];}
     pub fn y(self: Vec3) f64 {return self.data[1];}
-    pub fn z(self: Vec3) f64 {return self.data[0];}
+    pub fn z(self: Vec3) f64 {return self.data[2];}
 
     pub fn randomUnitVector() Vec3 {
         while (true) {

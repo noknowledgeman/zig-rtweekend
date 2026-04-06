@@ -12,6 +12,8 @@ I tried with -Doptimize=Debug but that would have taken around 3 hours. Moved to
 
 - On 4fcdc5a1 with -Doptimize=ReleaseFast and Renderer.zig it was 1661883 millis 
 - With the MultithreadedRenderer.zig it was 526675 millis
+- With the MultithreadedRenderer.zig and a basic BVH it is 827524
+- With fix to         if (!self.bbox.hit(ray, ray_t)) return false; from         if (self.bbox.hit(ray, ray_t)) return false;
 
 ## TODOS
 

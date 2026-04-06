@@ -12,6 +12,28 @@ pub const Material = struct {
     pub fn scatter(self: *Material, ray: Ray, hit_record: HitRecord, attenuation: *Color, scattered: *Ray) bool {
         return self.scatterFn(self.ptr, ray, hit_record, attenuation, scattered);
     }
+    
+    pub const zero: Material = .{ 
+        .ptr = undefined,
+        .scatterFn = struct {
+            fn zeroScatter(ptr: *anyopaque, ray: Ray, hit_record: HitRecord, attenuation: *Color, scattered: *Ray) bool {
+                _ = ray;
+                _ = ptr;
+        
+                var scatter_direction = hit_record.normal.add(Vec3.randomUnitVector());
+        
+                if (scatter_direction.nearZero()) {
+                    scatter_direction = hit_record.normal;
+                }
+        
+                scattered.* = Ray.init(hit_record.p, scatter_direction);
+        
+                attenuation.* = .init(1, 0, 0);
+        
+                return true;
+            }
+        }.zeroScatter,
+    };
 };
 
 pub const Lambertian = struct {

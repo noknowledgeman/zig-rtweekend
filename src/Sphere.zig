@@ -1,3 +1,4 @@
+const std = @import("std");
 const HitRecord = @import("hittable.zig").HitRecord;
 const Hittable = @import("hittable.zig").Hittable;
 const Interval = @import("Interval.zig");
@@ -16,11 +17,13 @@ bbox: AaBb = .{},
 
 pub fn init(center: Point, radius: f64, mat: Material) Sphere {
     const rvec = Vec3.init(radius, radius, radius);
+    const bbox: AaBb = .initWithPoints(center.sub(rvec), center.add(rvec));
+    std.debug.print("rvec: {any} center.sub(rvec): {any}, center.add(rvec): {any}\n\n", .{rvec, center.sub(rvec), center.add(rvec)});
     return .{
         .center = center,
         .radius = @max(0, radius),
         .mat = mat,
-        .bbox = .initWithPoints(center.sub(rvec), center.add(rvec)),
+        .bbox = bbox,
     };
 }
 
@@ -57,10 +60,16 @@ fn hit(ptr: *anyopaque, ray: Ray, ray_t: Interval, rec: *HitRecord) bool {
     return true;
 }
 
+fn boundingBox(ptr: *anyopaque) AaBb {
+    const self: *Sphere = @ptrCast(@alignCast(ptr));
+    return self.bbox;
+}
+
 pub fn hittable(self: *Sphere) Hittable {
     return .{
         .ptr = self,
         .hitFn = hit,
+        .boundingBoxFn = boundingBox,
     };
 }
 

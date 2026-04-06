@@ -12,47 +12,69 @@ y: Interval = .{},
 z: Interval = .{},
 
 pub fn initWithPoints(a: Point, b: Point) AaBb {
-    return .{
-        .x = if (a.x() <= b.x()) Interval{ .min = a.x(), .max = b.x() } else Interval{ .min = b.x(), .max = a.x() },
-        .y = if (a.y() <= b.y()) Interval{ .min = a.y(), .max = b.y() } else Interval{ .min = b.y(), .max = a.y() },
-        .z = if (a.z() <= b.z()) Interval{ .min = a.z(), .max = b.z() } else Interval{ .min = b.z(), .max = a.z() },
-    };
+    const x = if (a.x() <= b.x()) Interval.init(a.x(), b.x()) else Interval.init(b.x(), a.x());
+    const y = if (a.y() <= b.y()) Interval.init(a.y(), b.y()) else Interval.init(b.y(), a.y());
+    const z = if (a.z() <= b.z()) Interval.init(a.z(), b.z()) else Interval.init(b.z(), a.z());
+    
+    var aabb = AaBb{.x = x, .y = y, .z = z};
+    std.debug.print("The AABB of point: {any} and point: {any} has bbox of {any}\n\n", .{a, b, aabb});
+    
+    aabb.padToMinimums();
+    
+    return aabb;
 }
 
 pub fn combine(a: AaBb, b: AaBb) AaBb {
-    return .{
+    const new: AaBb = .{
         .x =  Interval.combine(a.x, b.x),
         .y =  Interval.combine(a.y, b.y),
         .z =  Interval.combine(a.z, b.z),
     };
+    
+    std.debug.print("{any} + {any} is equal to: {any}\n", .{a, b, new});
+    return new;
 }
 
 pub fn axisInterval(self: AaBb, n: u32) Interval {
-    if (n == 1) return self.y;
-    if (n == 2) return self.z;
-    return self.x;
+    return switch (n) {
+        0 => self.x,
+        1 => self.y,
+        2 => self.z,
+        else => unreachable,
+    };
 } 
 
-pub fn hit(self: AaBb, r: Ray, ray_t_p: Interval) bool {
-    var ray_t = ray_t_p;
+pub fn hit(self: AaBb, r: Ray, ray_t: Interval) bool {
+    var ray_tc = ray_t;
+    const ray_orig = r.orig;
+    const ray_dir = r.dir;
+    
     for (0..3) |axis| {
-        const ax = self.axisInterval(axis);
-        const adinv = 1.0 / r.dir.data[ax];
+        const ax = self.axisInterval(@intCast(axis));
+        const adinv = 1.0/ray_dir.data[axis];
         
-        const t0 = (ax.min - r.orig.data[axis]) * adinv;
-        const t1 = (ax.max - r.orig.data[axis]) * adinv;
+        const t0 = (ax.min - ray_orig.data[axis]) * adinv;
+        const t1 = (ax.max - ray_orig.data[axis]) * adinv;
         
         if (t0 < t1) {
-            if (t0 > ray_t.min) ray_t.min = t0;
-            if (t1 < ray_t.max) ray_t.max = t1;
+            if (t0 > ray_tc.min) ray_tc.min = t0;
+            if (t1 < ray_tc.max) ray_tc.max = t1;
         } else {
-            if (t1 > ray_t.min) ray_t.min = t1;
-            if (t0 < ray_t.max) ray_t.max = t0;
+            if (t1 > ray_tc.min) ray_tc.min = t1;
+            if (t0 < ray_tc.max) ray_tc.max = t0;
         }
         
-        if (ray_t.max <= ray_t.min) {
+        if (ray_tc.max <= ray_tc.min) {
             return false;
         }
     }
     return true;
+}
+
+fn padToMinimums(self: *AaBb) void {
+    const delta = 0.0001;
+    
+    if (self.x.size() < delta) self.x = self.x.expand(delta);
+    if (self.y.size() < delta) self.y = self.y.expand(delta);
+    if (self.z.size() < delta) self.z = self.z.expand(delta);
 }
