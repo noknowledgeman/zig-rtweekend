@@ -15,12 +15,13 @@ I tried with -Doptimize=Debug but that would have taken around 3 hours. Moved to
 - With the MultithreadedRenderer.zig and a basic BVH it is 827524
 - With fix to         if (!self.bbox.hit(ray, ray_t)) return false; from         if (self.bbox.hit(ray, ray_t)) return false;
 - With working BVH and multithreading 134018 millis
+- With taking the longest bbox size 125502 millis
 
 ## TODOS
 
 - [x] Multithreading
 - [x] Fix the multithreading by making each thread do a different amount of work? Not sure if reasonable (used a simple atomic scheme)
-- [ ] BVH
+- [x] BVH
 - [ ] Triangles
 - [ ] Implement some sort of file format like stl for triangles
 - [ ] motion blur

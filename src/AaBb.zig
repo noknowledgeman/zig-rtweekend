@@ -7,6 +7,13 @@ const Ray = @import("Ray.zig");
 /// The Axis=aligned boundinng box class, can be initialized as  a struct
 const AaBb = @This();
 
+pub const empty: AaBb = .{};
+pub const universe: AaBb = .{
+    .x = Interval.universe,
+    .y = Interval.universe,
+    .z = Interval.universe,
+};
+
 x: Interval = .{},
 y: Interval = .{},
 z: Interval = .{},
@@ -75,4 +82,13 @@ fn padToMinimums(self: *AaBb) void {
     if (self.x.size() < delta) self.x = self.x.expand(delta);
     if (self.y.size() < delta) self.y = self.y.expand(delta);
     if (self.z.size() < delta) self.z = self.z.expand(delta);
+}
+
+pub fn longestAxis(self: AaBb) u32 {
+    if (self.x.size() > self.y.size()) {
+        return if (self.x.size() > self.z.size()) 0 else 2;
+    }
+    else {
+        return if (self.y.size() > self.z.size()) 1 else 2;
+    }
 }
