@@ -32,9 +32,18 @@ I tried with -Doptimize=Debug but that would have taken around 3 hours. Moved to
 - [ ] Use GLFW or similar to show the buffer in a window, with progress
 - [ ] Raytracing next week
 - [ ] GPU Renderer (Possibly Vulkan) (possibly in a separate project or fork, a lot of the code is already made for the cpu and will be hard to port to the gpu, it would be a full rewrite)
+- [ ] Texture mapping
+- [ ] Lights
+- [ ] Volumes
 
 - [x] Fix the Vec3 class to just const Vec3 = @Vector(3, f64); and fix the operations (Did not do Uneccessary)
 
 ## Thougths
 
 Currently I am rendering per line, I could render per sample and average them together, i dont know if it would be faster.
+
+## References
+
+- [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
+- [_Ray Tracing: The Next Week_](https://raytracing.github.io/books/RayTracingTheNextWeek.html)
+- Sebastian Lague on youtube and his raytracing series.
