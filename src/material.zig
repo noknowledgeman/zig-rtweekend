@@ -5,49 +5,33 @@ const Color = @import("color.zig").Color;
 const Vec3 = @import("vec3.zig").Vec3;
 const util = @import("util.zig");
 
-pub const Material = struct {
-    ptr: *anyopaque,
-    scatterFn: *const fn(ptr: *anyopaque, ray: Ray, hit_record: HitRecord, attenuation: *Color, scattered: *Ray) bool,
-
-    pub fn scatter(self: *Material, ray: Ray, hit_record: HitRecord, attenuation: *Color, scattered: *Ray) bool {
-        return self.scatterFn(self.ptr, ray, hit_record, attenuation, scattered);
-    }
-    
-    pub const zero: Material = .{ 
-        .ptr = undefined,
-        .scatterFn = struct {
-            fn zeroScatter(ptr: *anyopaque, ray: Ray, hit_record: HitRecord, attenuation: *Color, scattered: *Ray) bool {
-                _ = ray;
-                _ = ptr;
-        
-                var scatter_direction = hit_record.normal.add(Vec3.randomUnitVector());
-        
-                if (scatter_direction.nearZero()) {
-                    scatter_direction = hit_record.normal;
-                }
-        
-                scattered.* = Ray.init(hit_record.p, scatter_direction);
-        
-                attenuation.* = .init(1, 0, 0);
-        
-                return true;
-            }
-        }.zeroScatter,
+// switching to an enum as it is easier to stack allocate
+// Maybe in the future if this is a full library switch back for runtime polymorphism and extension of this type but right now thats
+// wishful thinking
+pub const Material = union(enum) {
+    const Metallic = struct {
+        albedo: Color,
+        fuzz: f64,
     };
-};
 
-pub const Lambertian = struct {
-    albedo: Color,
+    /// contains the albedo
+    lambertian: Color,
+    metallic: Metallic,
+    /// Contains the refraction_index
+    dielectric: f64,
+    zero,
 
-    pub fn init(allocator: std.mem.Allocator, albedo: Color) !*Lambertian {
-        const new = try allocator.create(Lambertian);
-        new.* = Lambertian{ .albedo = albedo };
-        return new;
+    pub fn scatter(self: Material, ray: Ray, hit_record: HitRecord, attenuation: *Color, scattered: *Ray) bool {
+        switch (self) {
+            .lambertian => |albedo| return scatterLambertian(albedo, ray, hit_record, attenuation, scattered),
+            .metallic => |m| return scatterMetallic(m, ray, hit_record, attenuation, scattered),
+            .zero => return false,
+            .dielectric => |refraction_index| return scatterDielectric(refraction_index, ray, hit_record, attenuation, scattered),
+        }
     }
 
-    fn scatter(ptr: *anyopaque, ray: Ray, hit_record: HitRecord, attenuation: *Color, scattered: *Ray) bool {
+    fn scatterLambertian(albedo: Color, ray: Ray, hit_record: HitRecord, attenuation: *Color, scattered: *Ray) bool {
         _ = ray;
-        const self: *Lambertian = @ptrCast(@alignCast(ptr));
 
         var scatter_direction = hit_record.normal.add(Vec3.randomUnitVector());
 
@@ -57,32 +41,12 @@ pub const Lambertian = struct {
 
         scattered.* = Ray.init(hit_record.p, scatter_direction);
 
-        attenuation.* = self.albedo;
+        attenuation.* = albedo;
 
         return true;
     }
 
-    pub fn material(self: *Lambertian) Material {
-        return .{
-            .ptr = self,
-            .scatterFn = scatter,
-        };
-    }
-};
-
-pub const Metallic = struct {
-    albedo: Color,
-    fuzz: f64,
-
-    pub fn init(allocator: std.mem.Allocator, albedo: Color, fuzz: f64) !*Metallic {
-        const new = try allocator.create(Metallic);
-        new.* = Metallic{ .albedo = albedo, .fuzz = fuzz };
-        return new;
-    }
-
-    fn scatter(ptr: *anyopaque, r_in: Ray, rec: HitRecord, attenuation: *Color, scattered: *Ray) bool {
-        const self: *Metallic = @ptrCast(@alignCast(ptr));
-
+    fn scatterMetallic(self: Metallic, r_in: Ray, rec: HitRecord, attenuation: *Color, scattered: *Ray) bool {
         var reflected = r_in.dir.reflect(rec.normal);
         reflected = reflected.unitVector().add(Vec3.randomUnitVector().scale(self.fuzz));
         scattered.* = Ray.init(rec.p, reflected);
@@ -91,33 +55,14 @@ pub const Metallic = struct {
         return scattered.dir.dot(rec.normal) > 0;
     }
 
-    pub fn material(self: *Metallic) Material {
-        return .{
-            .ptr = self,
-            .scatterFn = scatter,
-        };
-    }
-};
-
-pub const Dielectric = struct {
-    refraction_index: f64,
-
-    pub fn init(allocator: std.mem.Allocator, refraction_index: f64) !*Dielectric {
-        const new = try allocator.create(Dielectric);
-        new.* = Dielectric{ .refraction_index = refraction_index };
-        return new;
-    }
-
-    fn scatter(ptr: *anyopaque, r_in: Ray, rec: HitRecord, attenuation: *Color, scattered: *Ray) bool {
-        const self: *Dielectric = @ptrCast(@alignCast(ptr));
-
+    fn scatterDielectric(refraction_index: f64, r_in: Ray, rec: HitRecord, attenuation: *Color, scattered: *Ray) bool {
         attenuation.* = Color.init(1.0, 1.0, 1.0);
-        const ri = if (rec.front_face) (1.0/self.refraction_index) else self.refraction_index;
+        const ri = if (rec.front_face) (1.0 / refraction_index) else refraction_index;
 
         const unit_direction = r_in.dir;
 
         const cos_theta = @min(unit_direction.scale(-1.0).dot(rec.normal), 1.0);
-        const sin_theta = @sqrt(1.0 - cos_theta*cos_theta);
+        const sin_theta = @sqrt(1.0 - cos_theta * cos_theta);
 
         const cannot_refract = (ri * sin_theta) > 1.0;
         var direction: Vec3 = undefined;
@@ -131,17 +76,10 @@ pub const Dielectric = struct {
         scattered.* = Ray.init(rec.p, direction);
         return true;
     }
-
-    pub fn material(self: *Dielectric) Material {
-        return .{
-            .ptr = self,
-            .scatterFn = scatter,
-        };
-    }
-
+    
     fn reflectance(cosine: f64, refraction_index: f64) f64 {
-        var r0 = (1 - refraction_index)/(1 + refraction_index);
-        r0 = r0*r0;
-        return r0 + (1-r0)*std.math.pow(f64, (1-cosine), 5);
+        var r0 = (1 - refraction_index) / (1 + refraction_index);
+        r0 = r0 * r0;
+        return r0 + (1 - r0) * std.math.pow(f64, (1 - cosine), 5);
     }
 };

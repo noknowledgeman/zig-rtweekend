@@ -2,4 +2,7 @@
 zig-out/
 output.ppm
 
+*.wasm
+*.wat
+
 scratch/

@@ -45,7 +45,7 @@ vup: Vec3 = Vec3.init(0.0, 1.0, 0.0),
 defocus_angle: f64 = 0.0,
 focus_dist: f64 = 10.0,
 
-// private fields
+// private fields that are generated
 _image_height: u32,
 _pixel_samples_scale: f64,
 _center: Point,
