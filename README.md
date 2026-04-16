@@ -22,6 +22,8 @@ I tried with -Doptimize=Debug but that would have taken around 3 hours. Moved to
 - [x] Multithreading
 - [x] Fix the multithreading by making each thread do a different amount of work? Not sure if reasonable (used a simple atomic scheme)
 - [x] BVH
+- [ ] Add a scene 
+- [ ] Compile to WASM
 - [ ] Triangles
 - [ ] Implement some sort of file format like stl for triangles
 - [ ] motion blur
