@@ -16,7 +16,7 @@ const Error = error{
 
 pub fn init(allocator: std.mem.Allocator, x: u32, y: u32) !Buffer {
     return .{
-        .buf = try allocator.alloc(u8, 3*x*y),
+        .buf = try allocator.alloc(u8, 4*x*y),
         .x = x,
         .y = y,
         .allocator = allocator,
@@ -24,14 +24,17 @@ pub fn init(allocator: std.mem.Allocator, x: u32, y: u32) !Buffer {
 }
 
 pub fn insertColor(self: *Buffer, col: Color, x: usize, y: usize) !void {
-    if (3*x*y > self.buf.len) {
+    if (4*(y*self.x + x) + 3 >= self.buf.len) {
         return Error.BufferTooSmall;
     }
     
+    // rgba for now
     const bytes = color.colorToBytes(col);
-    self.buf[3*(y*self.x + x)] = bytes[0];
-    self.buf[3*(y*self.x + x) + 1] = bytes[1];
-    self.buf[3*(y*self.x + x) + 2] = bytes[2];
+    const idx = 4 * (y * self.x + x);
+    self.buf[idx + 0] = bytes[0];
+    self.buf[idx + 1] = bytes[1];
+    self.buf[idx + 2] = bytes[2];
+    self.buf[idx + 3] = 255;
 }
 
 pub fn deinit(self: *Buffer) void {

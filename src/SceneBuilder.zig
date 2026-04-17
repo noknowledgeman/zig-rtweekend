@@ -67,7 +67,7 @@ pub fn deinit(self: *SceneBuilder) void {
 pub fn initTestScene(allocator: std.mem.Allocator) !*SceneBuilder {
     const im_opts: Camera.ImageOptions = .{
         .aspect_ratio = (16.0/9.0),
-        .image_width = 1200,
+        .image_width = 400,
         .samples_per_pixel = 20,
         .max_depth = 50,
     };

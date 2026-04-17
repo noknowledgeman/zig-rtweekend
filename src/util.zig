@@ -7,17 +7,19 @@ pub fn degreesToRadians(degrees: f64) f64 {
 }
 
 var rand: ?std.Random.Xoshiro256 = null;
+
+fn initRand() void {
+    // set seed for now to remove any os dependencies
+    rand = std.Random.DefaultPrng.init(1);
+}
+
 pub fn randomDouble() f64 {
-    if (rand == null) {
-        rand  = std.Random.DefaultPrng.init(@intCast(std.time.nanoTimestamp()));
-    }
+    if (rand == null) initRand();
     return rand.?.random().float(f64);
 }
 
 pub fn randomInt(min: u32, max: u32) u32 {
-    if (rand == null) {
-        rand = std.Random.DefaultPrng.init(@intCast(std.time.nanoTimestamp()));
-    }
+    if (rand == null) initRand();
     return (rand.?.random().int(u32)%(max-min+1)) + min;
 }
 

@@ -132,7 +132,7 @@ pub fn render_pixel(self: Camera, world: Hittable, i: usize, j: usize) Color {
 
         pixel_color = pixel_color.add(self.rayColor(r, self.max_depth, world));
     }
-    return pixel_color;
+    return pixel_color.scale(self._pixel_samples_scale);
 }
 
 /// Construct camera ray originating from the origin and directed at a randomly sampled point around i j.

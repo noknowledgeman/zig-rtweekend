@@ -22,7 +22,7 @@ I tried with -Doptimize=Debug but that would have taken around 3 hours. Moved to
 - [x] Multithreading
 - [x] Fix the multithreading by making each thread do a different amount of work? Not sure if reasonable (used a simple atomic scheme)
 - [x] BVH
-- [ ] Add a scene 
+- [x] Add a scene (Not perfect I dont like the ergonomics)
 - [ ] Compile to WASM
 - [ ] Triangles
 - [ ] Implement some sort of file format like stl for triangles
@@ -39,6 +39,10 @@ I tried with -Doptimize=Debug but that would have taken around 3 hours. Moved to
 - [ ] Volumes
 
 - [x] Fix the Vec3 class to just const Vec3 = @Vector(3, f64); and fix the operations (Did not do Uneccessary)
+
+## WASM
+
+There seems to be something wrong with the Wasm renderer, I should make this into a library and then be able to make it a module using the build system, that would also allow me to factor out the main and have its onlyh dependency be that
 
 ## Thougths
 
