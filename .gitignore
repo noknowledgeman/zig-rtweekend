@@ -6,3 +6,5 @@ output.ppm
 *.wat
 
 scratch/
+
+node_modules
