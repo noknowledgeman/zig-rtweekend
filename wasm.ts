@@ -3,7 +3,7 @@
 const module = await WebAssembly.instantiateStreaming(fetch("wasm"))
 
 interface WasmExports extends WebAssembly.Exports {
-  init: () => void,
+  init: (width: number) => void,
   deinit: () => void,
   getBuffer: () => number,
   getWidth: () => number,
@@ -14,7 +14,7 @@ interface WasmExports extends WebAssembly.Exports {
 
 const { init, deinit, getBuffer, getWidth, getHeight, renderLine, memory } = module.instance.exports as WasmExports
 
-init()
+init(800)
 
 const width = getWidth()
 const height = getHeight()

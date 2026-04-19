@@ -16,11 +16,17 @@ buffer: Buffer,
 
 var renderer: ?WasmRenderer = null;
 
-export fn init() void {
+export fn init(width: usize) void {
     
     const wasm_allocator = std.heap.wasm_allocator;
     
-    const builder = SceneBuilder.initTestScene(wasm_allocator) catch unreachable;
+    const im_opts: Camera.ImageOptions = .{
+        .aspect_ratio = (16.0/9.0),
+        .image_width = width,
+        .samples_per_pixel = 20,
+        .max_depth = 50,
+    };
+    const builder = SceneBuilder.initTestScene(wasm_allocator, im_opts) catch unreachable;
     const scene = builder.build() catch unreachable;
     
     renderer = WasmRenderer{

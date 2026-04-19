@@ -64,13 +64,13 @@ pub fn deinit(self: *SceneBuilder) void {
     parent.destroy(self);
 }
 
-pub fn initTestScene(allocator: std.mem.Allocator) !*SceneBuilder {
-    const im_opts: Camera.ImageOptions = .{
-        .aspect_ratio = (16.0/9.0),
-        .image_width = 400,
-        .samples_per_pixel = 20,
-        .max_depth = 50,
-    };
+pub fn initTestScene(allocator: std.mem.Allocator, im_opts: Camera.ImageOptions) !*SceneBuilder {
+    // const im_opts: Camera.ImageOptions = .{
+    //     .aspect_ratio = (16.0/9.0),
+    //     .image_width = 400,
+    //     .samples_per_pixel = 20,
+    //     .max_depth = 50,
+    // };
     const cam_opts: Camera.CameraOptions = .{
         .vfov = 20,
         .lookfrom = Point.init(13, 2, 3),

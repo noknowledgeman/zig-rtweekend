@@ -10,4 +10,4 @@ const server = Bun.serve({
   }
 })
 
-console.log(`Serving the server on ${server.hostname}:${server.port}`)
+console.log(`Serving the server on http://${server.hostname}:${server.port}`)
