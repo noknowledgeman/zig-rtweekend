@@ -41,15 +41,19 @@ pub fn deinit(self: *Buffer) void {
     self.allocator.free(self.buf);
 }
 
-pub fn writeAsPPM(self: Buffer, file_name: []const u8) !void {
-    const file = try std.fs.cwd().createFile(file_name, .{.read = true});
-    defer file.close();
+pub fn writeAsPPM(self: Buffer, io: std.Io, file_name: []const u8) !void {
+    const file = try std.Io.Dir.cwd().createFile(io, file_name, .{.read = true});
+    defer file.close(io);
 
-    var writer = file.writer(&.{});
+    var buffer: [4096]u8 = undefined;
+    var writer = file.writer(io, &buffer);
  
     // The binary ppm header
     try writer.interface.print("P6\n{}\n{}\n255\n", .{self.x, self.y});
 
     // just write the buffer
-    _ = try writer.interface.write(self.buf);
+    for (0..self.x*self.y) |i| {
+        _ = try writer.interface.write(self.buf[4*i..4*i+3]);
+    }
+    try writer.flush();
 }

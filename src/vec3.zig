@@ -83,6 +83,11 @@ pub const Vec3 = struct {
     pub fn x(self: Vec3) f64 {return self.data[0];}
     pub fn y(self: Vec3) f64 {return self.data[1];}
     pub fn z(self: Vec3) f64 {return self.data[2];}
+    
+    pub fn axis(self: Vec3, axis_index: u2) f64 {
+        const array: [3]f64 = self.data;
+        return array[axis_index];
+    }
 
     pub fn randomUnitVector() Vec3 {
         while (true) {

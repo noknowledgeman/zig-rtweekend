@@ -56,10 +56,10 @@ pub fn hit(self: AaBb, r: Ray, ray_t: Interval) bool {
     
     for (0..3) |axis| {
         const ax = self.axisInterval(@intCast(axis));
-        const adinv = 1.0/ray_dir.data[axis];
+        const adinv = 1.0/ray_dir.axis(@intCast(axis));
         
-        const t0 = (ax.min - ray_orig.data[axis]) * adinv;
-        const t1 = (ax.max - ray_orig.data[axis]) * adinv;
+        const t0 = (ax.min - ray_orig.axis(@intCast(axis))) * adinv;
+        const t1 = (ax.max - ray_orig.axis(@intCast(axis))) * adinv;
         
         if (t0 < t1) {
             if (t0 > ray_tc.min) ray_tc.min = t0;

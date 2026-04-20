@@ -23,7 +23,8 @@ I tried with -Doptimize=Debug but that would have taken around 3 hours. Moved to
 - [x] Fix the multithreading by making each thread do a different amount of work? Not sure if reasonable (used a simple atomic scheme)
 - [x] BVH
 - [x] Add a scene (Not perfect I dont like the ergonomics)
-- [ ] Compile to WASM
+- [x] Compile to WASM
+- [ ] Zig 0.16.0
 - [ ] Triangles
 - [ ] Implement some sort of file format like stl for triangles
 - [ ] motion blur

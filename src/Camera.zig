@@ -11,10 +11,10 @@ const util = @import("util.zig");
 const Buffer = @import("Buffer.zig");
 
 pub const ImageOptions = struct {
-    aspect_ratio: f64 = 1.0,
-    image_width: u32 = 100,
-    samples_per_pixel: u32 = 10,
-    max_depth: u32 = 10,
+    aspect_ratio: f64 = 16.0/9.0,
+    image_width: u32 = 400,
+    samples_per_pixel: u32 = 50,
+    max_depth: u32 = 50,
 };
 
 pub const CameraOptions = struct {
