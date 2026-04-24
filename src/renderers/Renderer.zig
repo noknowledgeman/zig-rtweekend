@@ -17,7 +17,7 @@ pub fn render(self: Renderer, allocator: std.mem.Allocator, buffer: *Buffer, sce
             const pixel_color = scene.cam.render_pixel(scene.root, i, j);
     
             // ugly getting of internal variables
-            try buffer.insertColor(pixel_color.scale(scene.cam._pixel_samples_scale), i, j);
+            try buffer.insertColor(pixel_color, i, j);
         }
     }
 

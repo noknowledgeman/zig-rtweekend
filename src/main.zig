@@ -1,8 +1,9 @@
 const std = @import("std");
-const SceneBuilder = @import("SceneBuilder.zig");
-const Scene = @import("SceneBuilder.zig").Scene;
-const Renderer = @import("renderers/MultithreadedRenderer.zig");
-const Buffer = @import("Buffer.zig");
+const raytracer = @import("raytracer");
+const SceneBuilder = raytracer.SceneBuilder;
+const Scene = raytracer.Scene;
+const Renderer = raytracer.Renderer;
+const Buffer = raytracer.Buffer;
 
 pub fn main(init: std.process.Init) !void {
     const allocator = init.gpa;

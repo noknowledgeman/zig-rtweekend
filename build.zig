@@ -13,9 +13,16 @@ pub fn build(b: *std.Build) void {
         }),
     });
     b.installArtifact(exe);
+    
+    const raytracer = b.addModule("raytracer", .{
+        .root_source_file = b.path("src/root.zig"),
+        .optimize = optimize,
+        .target = target,
+    });
+    exe.root_module.addImport("raytracer", raytracer);
 
+    
     const run_cmd = b.addRunArtifact(exe);
-
     const run_step = b.step("run", "Run the Program");
     run_step.dependOn(&run_cmd.step);
 
@@ -30,6 +37,7 @@ pub fn build(b: *std.Build) void {
             .optimize = .ReleaseFast,
         }),
     });
+    wasm.root_module.addImport("raytracer", raytracer);
     wasm.entry = .disabled;
     wasm.rdynamic = true;
 

@@ -1,8 +1,8 @@
 const std = @import("std");
-const Hittable = @import("hittable.zig").Hittable;
-const HitRecord = @import("hittable.zig").HitRecord;
-const Ray = @import("Ray.zig");
-const Interval = @import("Interval.zig");
+const Hittable = @import("../hittable.zig").Hittable;
+const HitRecord = @import("../hittable.zig").HitRecord;
+const Ray = @import("../Ray.zig");
+const Interval = @import("../Interval.zig");
 
 const Triangle = @This();
 
