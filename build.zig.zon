@@ -1,11 +1,11 @@
 .{
-    .name = .zig,
+    .name = .raytracer,
 
     .version = "0.0.0",
 
     .fingerprint = 0xc1ce1081c7bfb06a, // Changing this has security and trust implications.
 
-    .minimum_zig_version = "0.14.1",
+    .minimum_zig_version = "0.16.0",
 
     .dependencies = .{
     },
@@ -13,9 +13,7 @@
         "build.zig",
         "build.zig.zon",
         "src",
-        "REDME.md",
-        // For example...
-        //"LICENSE",
-        //"README.md",
+        "README.md",
+        "LICENSE",
     },
 }
